@@ -1,3 +1,10 @@
-log.db
-log.db-journal
 node_modules
+
+# local database — internship notes stay off GitHub
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+.env
+.env.*
