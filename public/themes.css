@@ -1,0 +1,487 @@
+/* ---- skins ----
+   Token swaps on [data-theme][data-mode], plus the few rules a skin cannot
+   express as a colour: bevels, fonts, radii. The default skin is :root in
+   style.css, so it is not repeated here. app.js always writes data-mode. */
+
+/* @media screen on purpose: the printed logbook is a university document and
+   must come out identical under every skin. It also keeps color-scheme off
+   the print canvas, which otherwise blackens the page margins in dark mode. */
+
+@media screen {
+
+  /* Native controls follow the skin's mode, not the OS. */
+  [data-mode="dark"] {
+    color-scheme: dark;
+  }
+
+  [data-mode="light"] {
+    color-scheme: light;
+  }
+
+  /* ============ Nothing ============
+     One canvas, one ink, one red, and the dot matrix. Ndot is not
+     redistributable, so the matrix is the canvas grid and the type is a
+     grotesk in wide caps: an approximation, not the shipped font. */
+
+  [data-theme="nothing"] {
+    --font-ui: "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+    --r: 3px;
+    --r-sm: 2px;
+    --mark-glow: none;
+    --btn-shadow: none;
+    --panel-shadow: none;
+    --danger: #d71921;
+    --dot-size: 14px;
+  }
+
+  [data-theme="nothing"][data-mode="light"] {
+    --bg: #ffffff;
+    --bg-raise: #ffffff;
+    --sel: #ffe3e4;
+    --fg: #000000;
+    --muted: #4a4a4a;
+    --dim: #6e6e6e;
+    --faint: #b5b5b5;
+    --accent: #d71921;
+    --purple: #b3141b;
+    --line: #e0e0e0;
+    --border: #000000;
+    --border-strong: #d71921;
+    --pill-bg: #ffffff;
+    --pill-bg-hover: #f0f0f0;
+    --row-hover: #f6f6f6;
+    --dot: rgba(0, 0, 0, 0.09);
+    --scroll-thumb: #000000;
+    --scroll-thumb-hover: #d71921;
+    --on-accent: #ffffff;
+  }
+
+  [data-theme="nothing"][data-mode="dark"] {
+    --bg: #000000;
+    --bg-raise: #0a0a0a;
+    --sel: #3a0c0f;
+    --fg: #ffffff;
+    --muted: #b4b4b4;
+    --dim: #8c8c8c;
+    --faint: #5a5a5a;
+    --accent: #ff3b41;
+    --purple: #ff5b60;
+    --line: #262626;
+    --border: #ffffff;
+    --border-strong: #ff3b41;
+    --pill-bg: #000000;
+    --pill-bg-hover: #1a1a1a;
+    --row-hover: #0d0d0d;
+    --dot: rgba(255, 255, 255, 0.13);
+    --scroll-thumb: #ffffff;
+    --scroll-thumb-hover: #ff3b41;
+    /* Black clears AA on this red at 5.95:1, white only reaches 3.53:1. */
+    --on-accent: #000000;
+  }
+
+  /* The dot matrix is the skin: one grid, nothing layered over it. */
+  [data-theme="nothing"] body {
+    background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+    background-size: var(--dot-size) var(--dot-size);
+    background-position: -1px -1px;
+    background-color: var(--bg);
+    letter-spacing: 0.01em;
+  }
+
+  /* Labels shout, content does not: entries stay sentence case. */
+  [data-theme="nothing"] .view-tab,
+  [data-theme="nothing"] .btn,
+  [data-theme="nothing"] .icon-btn,
+  [data-theme="nothing"] .chip,
+  [data-theme="nothing"] .entry-form label,
+  [data-theme="nothing"] .foot,
+  [data-theme="nothing"] .masthead-meta,
+  [data-theme="nothing"] .book-table thead th {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 11px;
+  }
+
+  /* Outlines, not fills. */
+  [data-theme="nothing"] .btn,
+  [data-theme="nothing"] .chip,
+  [data-theme="nothing"] .icon-btn {
+    border: 1px solid var(--border);
+    color: var(--fg);
+    border-radius: 999px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  [data-theme="nothing"] .btn:hover,
+  [data-theme="nothing"] .chip:hover,
+  [data-theme="nothing"] .icon-btn:hover {
+    background: var(--pill-bg-hover);
+    color: var(--fg);
+  }
+
+  /* The only red on the page: active filter, open row, focused field. */
+  [data-theme="nothing"] .chip.on {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+  }
+
+  [data-theme="nothing"] .chip.on .chip-count {
+    color: var(--on-accent);
+  }
+
+  [data-theme="nothing"] .entry-form {
+    border-width: 1px;
+    border-color: var(--border);
+    background: var(--bg-raise);
+  }
+
+  [data-theme="nothing"] .search,
+  [data-theme="nothing"] .entry-form input,
+  [data-theme="nothing"] .entry-form textarea {
+    border-color: var(--line);
+    background: var(--bg-raise);
+  }
+
+  [data-theme="nothing"] .row.open .row-main {
+    border-left-color: var(--accent);
+  }
+
+  [data-theme="nothing"] .view-tab.on {
+    color: var(--fg);
+    border-bottom-color: var(--accent);
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+  }
+
+
+  [data-theme="nothing"] .mark {
+    color: var(--accent);
+  }
+
+  /* ============ E-Ink Paper ============
+     The app becomes a printed A4 logbook, so the screen is that paper: warm
+     sheet, one ink, hairline rules, no glow. Serif because that is what the
+     handed-in book is read in, not for decoration. */
+
+  [data-theme="eink"] {
+    --font-ui: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    --r: 2px;
+    --r-sm: 2px;
+    --mark-glow: none;
+    --btn-shadow: none;
+    --panel-shadow: none;
+  }
+
+  [data-theme="eink"][data-mode="light"] {
+    --bg: #f2efe6;
+    --bg-raise: #f8f6f0;
+    --sel: #e2ded1;
+    --fg: #1c1a17;
+    --muted: #4f4b43;
+    --dim: #6b665c;
+    --faint: #a9a294;
+    --accent: #1c1a17;
+    --purple: #33302a;
+    --line: #d5d0c2;
+    --border: #b8b2a4;
+    --border-strong: #1c1a17;
+    --pill-bg: #e6e2d6;
+    --pill-bg-hover: #dcd7c8;
+    --row-hover: #eae6da;
+    --danger: #8c2f22;
+    --scroll-thumb: #b8b2a4;
+    --scroll-thumb-hover: #8a8477;
+    --page-bg: var(--bg);
+  }
+
+  /* An e-reader at night: the same sheet inverted. A dark page, not a dark UI. */
+  [data-theme="eink"][data-mode="dark"] {
+    --bg: #14130f;
+    --bg-raise: #1b1a15;
+    --sel: #2e2c24;
+    --fg: #e8e4d8;
+    --muted: #b4afa1;
+    --dim: #938e81;
+    --faint: #5e594e;
+    --accent: #e8e4d8;
+    --purple: #cfcabb;
+    --line: #2f2d26;
+    --border: #45423a;
+    --border-strong: #e8e4d8;
+    --pill-bg: #262419;
+    --pill-bg-hover: #302d22;
+    --row-hover: #1a1914;
+    --danger: #d9887a;
+    --scroll-thumb: #45423a;
+    --scroll-thumb-hover: #6b665c;
+    --page-bg: var(--bg);
+  }
+
+  /* Paper has no elevation and no animation. */
+  [data-theme="eink"] * {
+    transition: none !important;
+    box-shadow: none !important;
+  }
+
+  [data-theme="eink"] body {
+    line-height: 1.7;
+  }
+
+  /* Numbers stay monospaced so columns line up. */
+  [data-theme="eink"] .row-date,
+  [data-theme="eink"] .masthead-meta,
+  [data-theme="eink"] .chip-count,
+  [data-theme="eink"] .col-date {
+    font-family: var(--font);
+  }
+
+  /* Small caps, the way a printed form labels its columns. */
+  [data-theme="eink"] .view-tab,
+  [data-theme="eink"] .entry-form label,
+  [data-theme="eink"] .book-table thead th,
+  [data-theme="eink"] .foot {
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: 11px;
+  }
+
+  [data-theme="eink"] .btn {
+    background: var(--pill-bg);
+    border-color: var(--border);
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  [data-theme="eink"] .btn:hover {
+    background: var(--pill-bg-hover);
+    color: var(--fg);
+  }
+
+  /* The selected filter is the one thing printed solid. */
+  [data-theme="eink"] .chip.on {
+    background: var(--fg);
+    border-color: var(--fg);
+    color: var(--bg);
+  }
+
+  [data-theme="eink"] .chip.on .chip-count {
+    color: var(--bg);
+  }
+
+  [data-theme="eink"] .row.open .row-main {
+    border-left-color: var(--fg);
+  }
+
+  [data-theme="eink"] .view-tab.on {
+    border-bottom-color: var(--fg);
+    font-weight: 700;
+  }
+
+  /* ============ Windows 95 / 98 ============
+     Raised and sunken bevels, square corners, one 2px light/dark pair. */
+
+  [data-theme="win9x"] {
+    --font-ui: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Verdana, Geneva, sans-serif;
+    --r: 0;
+    --r-sm: 0;
+    --mark-glow: none;
+    --btn-shadow: none;
+    --panel-shadow: none;
+    /* Swapped per mode so the 3D reads on both canvases. */
+    --bevel-light: #ffffff;
+    --bevel-soft: #dfdfdf;
+    --bevel-shade: #808080;
+    --bevel-dark: #000000;
+  }
+
+  [data-theme="win9x"][data-mode="light"] {
+    --bg: #008080;
+    --bg-raise: #c0c0c0;
+    --sel: #000080;
+    --fg: #000000;
+    --muted: #000000;
+    --dim: #404040;
+    --faint: #808080;
+    --accent: #000080;
+    --purple: #000080;
+    --line: #808080;
+    --border: #808080;
+    --border-strong: #000080;
+    --pill-bg: #c0c0c0;
+    --pill-bg-hover: #d4d0c8;
+    --row-hover: #d4d0c8;
+    --danger: #800000;
+    --scroll-thumb: #c0c0c0;
+    --scroll-thumb-hover: #d4d0c8;
+    --page-bg: var(--bg);
+  }
+
+  /* The classic High Contrast Black scheme, not a modern dark mode. */
+  [data-theme="win9x"][data-mode="dark"] {
+    --bg: #000000;
+    --bg-raise: #1f1f1f;
+    --sel: #008080;
+    --fg: #ffffff;
+    --muted: #e0e0e0;
+    --dim: #b0b0b0;
+    --faint: #707070;
+    --accent: #00ffff;
+    --purple: #00ffff;
+    --line: #6f6f6f;
+    --border: #9a9a9a;
+    --border-strong: #00ffff;
+    --pill-bg: #1f1f1f;
+    --pill-bg-hover: #333333;
+    --row-hover: #171717;
+    --danger: #ff6b6b;
+    --scroll-thumb: #3a3a3a;
+    --scroll-thumb-hover: #555555;
+    --page-bg: var(--bg);
+    --bevel-light: #9a9a9a;
+    --bevel-soft: #5a5a5a;
+    --bevel-shade: #3a3a3a;
+    --bevel-dark: #000000;
+  }
+
+  /* Teal desktop, raised window on top. */
+  [data-theme="win9x"] .shell {
+    background: var(--bg-raise);
+    border: 2px solid;
+    border-color: var(--bevel-light) var(--bevel-dark) var(--bevel-dark) var(--bevel-light);
+    box-shadow: inset 1px 1px 0 var(--bevel-soft), inset -1px -1px 0 var(--bevel-shade);
+    padding: 14px 16px 18px;
+  }
+
+  /* Raised. */
+  [data-theme="win9x"] .btn,
+  [data-theme="win9x"] .icon-btn,
+  [data-theme="win9x"] .chip,
+  [data-theme="win9x"] .view-tab,
+  [data-theme="win9x"] .clear {
+    background: var(--bg-raise);
+    color: var(--fg);
+    border: 2px solid;
+    border-color: var(--bevel-light) var(--bevel-dark) var(--bevel-dark) var(--bevel-light);
+    box-shadow: inset 1px 1px 0 var(--bevel-soft), inset -1px -1px 0 var(--bevel-shade);
+  }
+
+  [data-theme="win9x"] .btn:hover,
+  [data-theme="win9x"] .icon-btn:hover,
+  [data-theme="win9x"] .chip:hover,
+  [data-theme="win9x"] .view-tab:hover {
+    background: var(--pill-bg-hover);
+    color: var(--fg);
+  }
+
+  /* Pressed: bevel inverts, label shifts a pixel down and right. */
+  [data-theme="win9x"] .btn:active,
+  [data-theme="win9x"] .icon-btn:active,
+  [data-theme="win9x"] .chip.on,
+  [data-theme="win9x"] .view-tab.on {
+    border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark);
+    box-shadow: inset 1px 1px 0 var(--bevel-shade);
+    transform: none;
+  }
+
+  [data-theme="win9x"] .btn:active,
+  [data-theme="win9x"] .icon-btn:active {
+    padding-top: 8px;
+    padding-left: calc(18px + 1px);
+  }
+
+  [data-theme="win9x"] .view-tab.on {
+    border-bottom-color: var(--bevel-light);
+    font-weight: 700;
+  }
+
+  /* Sunken: anything you type into. */
+  [data-theme="win9x"] .search,
+  [data-theme="win9x"] .entry-form input,
+  [data-theme="win9x"] .entry-form textarea {
+    background: var(--bg-raise);
+    color: var(--fg);
+    border: 2px solid;
+    border-color: var(--bevel-shade) var(--bevel-light) var(--bevel-light) var(--bevel-shade);
+    box-shadow: inset 1px 1px 0 var(--bevel-dark);
+  }
+
+  [data-theme="win9x"][data-mode="light"] .search,
+  [data-theme="win9x"][data-mode="light"] .entry-form input,
+  [data-theme="win9x"][data-mode="light"] .entry-form textarea {
+    background: #ffffff;
+  }
+
+  [data-theme="win9x"] .entry-form {
+    background: var(--bg-raise);
+    border: 2px solid;
+    border-color: var(--bevel-light) var(--bevel-dark) var(--bevel-dark) var(--bevel-light);
+  }
+
+  /* The form heading is a title bar. */
+  [data-theme="win9x"] .form-head {
+    background: var(--sel);
+    margin: -16px -16px 4px;
+    padding: 4px 6px 4px 8px;
+  }
+
+  [data-theme="win9x"] .form-head h2 {
+    color: #ffffff;
+  }
+
+  [data-theme="win9x"] .form-head .icon-btn {
+    min-height: 20px;
+    padding: 0 8px;
+  }
+
+  [data-theme="win9x"] .book-table th,
+  [data-theme="win9x"] .book-table td {
+    border: 1px solid var(--bevel-shade);
+  }
+
+  [data-theme="win9x"] .book-table thead th {
+    background: var(--bg-raise);
+    color: var(--fg);
+  }
+
+  /* The dotted marching rectangle, still the clearest cue on flat grey. */
+  [data-theme="win9x"] :focus-visible {
+    outline: 1px dotted var(--fg);
+    outline-offset: -4px;
+  }
+
+  /* ============ the skin picker itself ============ */
+
+  .skin {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .skin-select,
+  .skin-mode {
+    min-height: 34px;
+    background: var(--bg-raise);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    color: var(--fg);
+    font: inherit;
+    font-size: 12px;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+
+  .skin-mode {
+    min-width: 62px;
+  }
+
+  .skin-mode:hover,
+  .skin-select:hover {
+    border-color: var(--border-strong);
+  }
+
+
+}
