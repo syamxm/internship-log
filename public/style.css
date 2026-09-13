@@ -21,21 +21,17 @@
   --sel: #221b33;
   --fg: #e4e1ee;
   --muted: #a5a1b2;
-  --dim: #615d72;
   --faint: #453f57;
   --accent: #7c3aed;
   --purple: #a78bfa;
-  --glow-purple: rgba(124, 58, 237, 0.5);
   --line: rgba(124, 58, 237, 0.14);
   --border: rgba(124, 58, 237, 0.24);
   --pill-bg: rgba(124, 58, 237, 0.12);
-  --blink: 530ms;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --scroll-thumb: rgba(124, 58, 237, 0.45);
   --scroll-thumb-hover: rgba(167, 139, 250, 0.7);
 
-  /* Swapped by themes.css. Nothing below this block hardcodes a colour. */
-  --border-strong: var(--border-strong);
+  --border-strong: var(--purple);
   --pill-bg-hover: rgba(124, 58, 237, 0.22);
   --row-hover: rgba(124, 58, 237, 0.05);
   --mark-glow: 0 0 12px rgba(124, 58, 237, 0.3);
@@ -44,8 +40,6 @@
   --font-ui: var(--font);
   --r: 6px;
   --r-sm: 6px;
-  --btn-shadow: none;
-  --panel-shadow: none;
   --page-bg:
     radial-gradient(1100px 700px at 88% -12%, rgba(167, 139, 250, 0.05), transparent 60%),
     radial-gradient(1300px 850px at 8% 4%, rgba(124, 58, 237, 0.09), transparent 62%),
@@ -70,9 +64,7 @@ html {
   scrollbar-color: var(--scroll-thumb) transparent;
 }
 
-/* Chromium and Safari ignore scrollbar-color, so the same look is rebuilt here.
-   The 3px transparent border plus padding-box clip is what makes the thumb read
-   as a slim bar with air around it rather than a full-width slab. */
+/* Legacy scrollbar styling for browsers without standard scrollbar support. */
 ::-webkit-scrollbar {
   width: 11px;
   height: 11px;
@@ -188,10 +180,7 @@ a:hover {
   border-bottom-color: currentColor;
 }
 
-/* ---- masthead ----
-   The page is a tool opened every working day, so the identity gets one line
-   and the entries get the rest. The block glyph keeps the terminal voice
-   without a twelve-line ASCII wordmark eating the first screen. */
+/* ---- masthead ---- */
 
 .masthead {
   display: flex;
@@ -207,8 +196,10 @@ a:hover {
 .mark {
   color: var(--purple);
   font-family: monospace;
-  font-size: clamp(3.8px, 0.86vw, 6.4px);
-  line-height: 1;
+  font-size: clamp(6px, 1.5vw, 6.4px);
+  line-height: 1.2;
+  letter-spacing: 0;
+  font-variant-ligatures: none;
   text-shadow: var(--mark-glow);
   max-width: 100%;
   overflow-x: auto;
@@ -252,13 +243,7 @@ a:hover {
   white-space: nowrap;
 }
 
-/* ---- toolbar ----
-   Searching and writing are the only two things done before reading, so they
-   share one row at the top instead of two stacked blocks. */
-
-.layout {
-  display: block;
-}
+/* ---- toolbar ---- */
 
 .toolbar {
   display: flex;
@@ -268,8 +253,6 @@ a:hover {
 
 .find {
   position: relative;
-  /* Capped: a search box stretched across 1180px reads as a text editor, and
-     the two controls belong together as one group. */
   flex: 1 1 auto;
   max-width: 520px;
   display: flex;
@@ -292,10 +275,6 @@ a:hover {
   color: var(--muted);
 }
 
-.find:focus-within {
-  border-radius: var(--r);
-}
-
 .clear {
   position: absolute;
   right: 6px;
@@ -313,9 +292,7 @@ a:hover {
   color: var(--purple);
 }
 
-/* ---- period filters ----
-   One accent for the whole page: the old rail gave every period a random
-   colour, which looked like a legend for information that did not exist. */
+/* ---- period filters ---- */
 
 .rail {
   display: flex;
@@ -388,7 +365,6 @@ body:has(.entry-dialog[open]) {
   background: var(--bg-raise);
   border: 1px solid var(--border);
   border-radius: var(--r);
-  box-shadow: var(--panel-shadow);
   padding: 16px;
   margin: 0;
 }
@@ -481,7 +457,6 @@ body:has(.entry-dialog[open]) {
   font-size: 12.5px;
   font-weight: 600;
   padding: 6px 18px;
-  box-shadow: var(--btn-shadow);
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.12s var(--ease), color 0.12s var(--ease);
@@ -501,10 +476,7 @@ body:has(.entry-dialog[open]) {
   font-size: 12px;
 }
 
-/* ---- the feed ----
-   Hairlines instead of cards: elevation was not communicating hierarchy, it
-   was just boxing every row. The date sits in a fixed gutter so the eye can
-   run down it. */
+/* ---- the feed ---- */
 
 .results-label {
   color: var(--muted);
@@ -684,8 +656,6 @@ body:has(.entry-dialog[open]) {
 
 /* ---- view tabs ---- */
 
-/* Two views over one dataset, so the switch is a pair of tabs rather than a
-   route: the screen list keeps its rail and filters, the logbook does not. */
 .views {
   display: flex;
   gap: 6px;
@@ -709,9 +679,7 @@ body:has(.entry-dialog[open]) {
   color: var(--purple);
 }
 
-/* The form inputs drop the default outline for a border-colour focus cue,
-   which is too weak to navigate by keyboard. Put a real ring back for
-   keyboard focus without changing the mouse-click look. */
+/* Keep keyboard focus visible on form controls. */
 .entry-form input:focus-visible,
 .entry-form textarea:focus-visible,
 .search:focus-visible {
@@ -750,11 +718,6 @@ body:has(.entry-dialog[open]) {
   accent-color: var(--accent);
 }
 
-/* 44px so the one control that matters on a phone is a comfortable target. */
-#print {
-  min-height: 44px;
-}
-
 .book-note {
   color: var(--muted);
   font-size: 12px;
@@ -767,10 +730,9 @@ body:has(.entry-dialog[open]) {
   margin-top: 4px;
 }
 
-/* Reviewing the printout is where typos get spotted, so each row carries a
-   way back into the form for that day. */
 .row-edit {
   display: block;
+  white-space: nowrap;
   margin-top: 2px;
   /* 44px would double the height of every row, so this sits at the 24px
      minimum target size instead, which a dense table can carry. */
@@ -796,10 +758,9 @@ body:has(.entry-dialog[open]) {
   font-size: 12.5px;
 }
 
-/* Fixed widths because the printed book has fixed widths: the date is one
-   short token, the work column carries the paragraph, remarks take a note. */
 .col-date {
   width: 16%;
+  white-space: nowrap;
 }
 .col-work {
   width: 56%;
@@ -878,14 +839,6 @@ body.hide-remarks .remark-text {
   .book-table td {
     padding: 7px 8px;
   }
-}
-
-.col-date {
-  white-space: nowrap;
-}
-
-.row-edit {
-  white-space: nowrap;
 }
 
 /* ---- print: the page that gets handed in ---- */

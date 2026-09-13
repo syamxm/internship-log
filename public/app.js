@@ -54,7 +54,7 @@ const demoSave = (rows) => {
   try {
     localStorage.setItem(DEMO_KEY, JSON.stringify(rows));
   } catch {
-    /* read-only storage: the page still works for this session */
+    throw new Error("Could not save in this browser. Allow site storage and try again.");
   }
 };
 
@@ -102,7 +102,7 @@ function enterDemo() {
   $("demo-note").hidden = false;
   $("stat-store").textContent = "localStorage";
   $("foot-where").textContent = "internship-log, demo build";
-  $("foot-stack").textContent = "no server, nothing saved";
+  $("foot-stack").textContent = "stored in this browser";
 }
 
 const api = async (method, path = "", body) => {
@@ -118,8 +118,6 @@ const api = async (method, path = "", body) => {
   }
 };
 
-// Three states for the fetch: loading, loaded, failed. The list and the
-// logbook share one status line each so a failure is never a blank page.
 const load = async () => {
   $("results").textContent = "loading entries";
   try {
@@ -178,9 +176,7 @@ function render() {
 // UiTM writes dates by hand as DD/MM/YYYY; storage stays YYYY-MM-DD.
 const uitmDate = (iso) => iso.split("-").reverse().join("/");
 
-// The logbook is the printed artefact, so it ignores the search box and the
-// rail filter: it always shows every entry, oldest first, grouped by the
-// period heading the owner already types into `category`.
+// Printing includes all entries, regardless of the current search or filter.
 function renderBook() {
   const rows = [...entries].sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
   $("book-empty").hidden = rows.length > 0;
@@ -251,8 +247,6 @@ $("print").addEventListener("click", () => window.print());
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-// Day and month in the gutter, year only where it changes nothing to repeat it
-// on screen: the printed logbook is where the full date matters.
 const dayLabel = (iso) => {
   const [, m, d] = iso.split("-");
   return `${d} ${MONTHS[Number(m) - 1] ?? m}`;
@@ -306,7 +300,6 @@ const closeForm = () => {
 const editEntry = (id) => {
   const e = entries.find((x) => x.id === id);
   if (!e) return;
-  openForm();
   $("form-title").textContent = "Edit entry";
   $("f-id").value = e.id;
   $("f-date").value = e.date;
@@ -316,7 +309,7 @@ const editEntry = (id) => {
   $("f-tags").value = e.tags;
   $("f-remarks").value = e.remarks ?? "";
   $("submit").textContent = "save entry";
-  $("f-title").focus();
+  openForm();
 };
 
 const resetForm = () => {
@@ -353,7 +346,6 @@ $("cancel").addEventListener("click", closeForm);
 $("new").addEventListener("click", () => {
   resetForm();
   openForm();
-  $("f-title").focus();
 });
 
 $("entry-dialog").addEventListener("cancel", (ev) => {
@@ -384,9 +376,13 @@ $("items").addEventListener("click", async (ev) => {
   }
   if (edit) editEntry(Number(edit));
   if (del && confirm("delete this entry?")) {
-    await api("DELETE", `/${del}`);
-    expanded.delete(Number(del));
-    await load();
+    try {
+      await api("DELETE", `/${del}`);
+      expanded.delete(Number(del));
+      await load();
+    } catch (err) {
+      $("results").textContent = `could not delete entry: ${err.message}`;
+    }
   }
 });
 

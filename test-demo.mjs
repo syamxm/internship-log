@@ -71,4 +71,18 @@ await new Promise((r) => setTimeout(r, 0));
 assert.equal(JSON.parse(storage.get("internship-log-demo")).length, 2, "delete removes the row from storage");
 assert.ok(!nodes.get("items").innerHTML.includes("Wrote the deploy checklist"), "and from the page");
 
+// Storage failures must keep the draft and report failure, never claim success.
+localStorage.setItem = () => { throw new Error("storage blocked"); };
+nodes.get("new").handlers.click();
+await submit({ "f-id": "", "f-date": "2026-07-09", "f-title": "Unsaved draft" });
+assert.equal(nodes.get("entry-dialog").open, true, "failed storage keeps the form open");
+assert.equal(nodes.get("f-title").value, "Unsaved draft", "failed storage preserves the draft");
+assert.match(nodes.get("error").textContent, /Could not save in this browser/);
+assert.equal(JSON.parse(storage.get("internship-log-demo")).length, 2, "failed writes leave stored entries intact");
+await nodes.get("items").handlers.click({
+  target: { closest: () => ({ dataset: { del: "1" } }) },
+});
+assert.match(nodes.get("results").textContent, /could not delete entry:/, "failed deletion is reported");
+assert.match(nodes.get("items").innerHTML, /First day/, "failed deletion leaves the entry visible");
+
 console.log("demo build self-check passed");
