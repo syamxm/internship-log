@@ -1,9 +1,9 @@
-# Internship Log
+# Chronos
 
 A single-page daily log for a UiTM internship: what you worked on, what broke,
 what you learned. Entries live in a local SQLite file, and a logbook view prints
 to the three-column form the university asks for. No build step, no framework,
-no dependencies, just Node's standard library and three static files.
+no dependencies, just Node's standard library and four static files.
 
 ## Requirements
 
@@ -116,6 +116,23 @@ Stop the server with `Ctrl+C`.
 
 Left and right arrow keys move between the two tabs.
 
+## Skins
+
+Four looks, picked from the control in the masthead and remembered per browser:
+
+- **Syamxm**, the house style: dark, purple, monospaced. Dark only, by
+  definition.
+- **Nothing**: one canvas, one ink, one red, and a dot-matrix grid behind the
+  page. Approximation, not the real thing: the Ndot typeface is not
+  redistributable, so the dot matrix is drawn as the canvas instead.
+- **E-Ink Paper**: a warm sheet, one ink, hairline rules, no glow. The tool
+  exists to become a printed logbook, so this skin is that paper.
+- **Windows 95**: raised and sunken bevels, square corners, teal desktop.
+
+Each skin apart from the house style carries a light and a dark mode, seeded
+from your system preference on first visit. Skins are screen-only: the printed
+logbook comes out identical whichever one is on.
+
 ## Printing the logbook
 
 Open the logbook view, pick whether the remarks column prints filled or blank,
@@ -133,6 +150,31 @@ To back it up, copy the file. To start fresh, delete it and restart the server.
 
 Nothing is sent anywhere. The server binds to `127.0.0.1`, so it is reachable
 only from your own computer and not from the rest of your network.
+
+## The online demo
+
+[chronos.syamxm.com](https://chronos.syamxm.com) runs a static copy on GitHub
+Pages, so it can be tried without installing anything. It is a demo and
+nothing more:
+
+- There is no server and no database behind it. Entries are written to the
+  browser's **localStorage**.
+- That means the data is gone when you clear site data, and never leaves the
+  browser you typed it in. No sync, no backup, no export beyond the print
+  dialog.
+- **Do not keep a real logbook there.** Run it locally for that.
+
+The page detects this on its own: when `/api/entries` answers with anything
+other than the real API, it switches to the localStorage store and shows the
+disclaimer at the top of the page. The same code runs in both places, so
+nothing has to be kept in sync by hand.
+
+Deployment is `.github/workflows/pages.yml`, which uploads `public/` as-is on
+every push to `main` that touches it. Enable it once under Settings, Pages,
+Source: GitHub Actions. The custom domain comes from `public/CNAME`, so
+`chronos.syamxm.com` needs a CNAME record pointing at `syamxm.github.io`.
+
+Bugs, opinions and requests go to [syamxm.com/#contact](https://syamxm.com/#contact).
 
 ## Keeping it running
 
@@ -155,8 +197,9 @@ instead of `pm2 startup`, or run the server from a Task Scheduler entry.
 | --- | --- |
 | `server.js` | HTTP server, SQLite schema, JSON API, static file serving |
 | `public/index.html` | Page structure |
-| `public/app.js` | Rendering, search, category filter, form handling |
-| `public/style.css` | Styling |
+| `public/app.js` | Rendering, search, category filter, form handling, skins, demo store |
+| `public/style.css` | Layout and the default skin's tokens |
+| `public/themes.css` | The other three skins, screen only |
 | `ecosystem.config.cjs` | PM2 process definition |
 
 The API is four routes under `/api/entries`:
@@ -167,6 +210,18 @@ The API is four routes under `/api/entries`:
 | `POST` | `/api/entries` | Create an entry |
 | `PUT` | `/api/entries/:id` | Replace an entry |
 | `DELETE` | `/api/entries/:id` | Delete an entry |
+
+## Self-checks
+
+```sh
+npm test
+```
+
+Two files, no framework and no dependencies: `test-logbook.mjs` runs the
+logbook render against a stub DOM (grouping, date format, escaping, tab
+switching, skins), and `test-demo.mjs` runs the same app.js with no API behind
+it to check the demo build falls back to localStorage, says so on screen, and
+still validates input the way the server does.
 
 ## Schema
 

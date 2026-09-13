@@ -2,36 +2,16 @@
 // state. Runs app.js against a stub DOM so no browser is needed.
 //   node test-logbook.mjs
 import assert from "node:assert/strict";
-
-const el = () => ({
-  handlers: {},
-  innerHTML: "",
-  textContent: "",
-  value: "",
-  hidden: false,
-  dataset: {},
-  classList: { toggle() {}, add() {}, remove() {} },
-  setAttribute() {},
-  focus() {},
-  addEventListener(type, fn) {
-    this.handlers[type] = fn;
-  },
-  scrollIntoView() {},
-  reset() {},
-});
-
-const nodes = new Map();
-globalThis.document = {
-  getElementById: (id) => nodes.get(id) ?? nodes.set(id, el()).get(id),
-  querySelector: (sel) => nodes.get(sel) ?? nodes.set(sel, el()).get(sel),
-  body: el(),
-};
+import { install } from "./test-dom.mjs";
 
 const entries = [
   { id: 2, date: "2026-09-14", title: "Second week", category: "1st Week Intern", body: "b2", tags: "", remarks: "seen" },
   { id: 1, date: "2026-09-07", title: "Day <one>", category: "1st Day Intern", body: "b1", tags: "", remarks: "" },
 ];
-globalThis.fetch = async () => ({ ok: true, json: async () => entries });
+
+const { nodes, storage: store } = install({
+  fetchImpl: async () => ({ ok: true, json: async () => entries }),
+});
 
 await import("./public/app.js");
 await new Promise((r) => setTimeout(r, 0));
@@ -69,5 +49,26 @@ nodes.get(".views").handlers.keydown({ key: "ArrowRight", preventDefault() {} })
 assert.equal(nodes.get("view-book").hidden, false, "ArrowRight opens the logbook");
 nodes.get(".views").handlers.keydown({ key: "ArrowLeft", preventDefault() {} });
 assert.equal(nodes.get("view-log").hidden, false, "ArrowLeft returns to the log");
+
+// Skins: the house style is dark by definition and hides the mode toggle, the
+// desktop skins keep a mode and remember both halves of the choice.
+const html_ = document.documentElement;
+assert.equal(html_.dataset.theme, "syam", "first visit lands on the house style");
+assert.equal(html_.dataset.mode, "dark", "the house style is dark whatever the system says");
+assert.equal(nodes.get("skin-mode").hidden, true, "no light/dark toggle on the house style");
+
+nodes.get("skin-theme").handlers.change({ target: { value: "nothing" } });
+assert.equal(html_.dataset.theme, "nothing", "picking a skin writes it to the root element");
+assert.equal(html_.dataset.mode, "light", "a desktop skin follows the system preference first");
+assert.equal(nodes.get("skin-mode").hidden, false, "the desktop skins get a mode toggle");
+
+nodes.get("skin-mode").handlers.click();
+assert.equal(html_.dataset.mode, "dark", "the toggle flips the mode");
+assert.equal(store.get("skin-mode"), "dark", "and the mode survives a reload");
+assert.equal(store.get("skin-theme"), "nothing", "so does the skin");
+
+nodes.get("skin-theme").handlers.change({ target: { value: "syam" } });
+assert.equal(html_.dataset.mode, "dark", "back on the house style the mode is forced dark");
+assert.equal(store.get("skin-mode"), "dark", "without overwriting the mode the skins remember");
 
 console.log("logbook self-check passed");

@@ -2,37 +2,70 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Internship log: what I did, what I learned, day by day." />
+    <meta name="description" content="Chronos: an internship log. What I did, what I learned, day by day." />
     <meta name="theme-color" content="#0D0B14" />
-    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="/style.css" />
-    <title>Internship Log, syamxm</title>
+    <link rel="preload" href="fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="themes.css" />
+    <title>Chronos, internship log</title>
+    <script>
+      // Inline so the saved skin lands before the first paint.
+      (() => {
+        const t = localStorage.getItem("skin-theme") || "syam";
+        document.documentElement.dataset.theme = t;
+        document.documentElement.dataset.mode =
+          t === "syam"
+            ? "dark"
+            : localStorage.getItem("skin-mode") ||
+              (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      })();
+    </script>
   </head>
   <body>
     <div class="page">
       <div class="shell">
+        <aside class="demo-note" id="demo-note" hidden>
+          <p class="demo-head">This is a demo. Nothing you type here is saved anywhere but this browser.</p>
+          <p>
+            No server sits behind this page. Entries go into this browser's localStorage, so they
+            disappear when you clear site data and they never follow you to another browser, another
+            device, or a private window. Do not keep a real logbook here. Run Chronos on your own
+            machine for that, where it writes to a SQLite file you own.
+          </p>
+          <p class="demo-links">
+            <a href="https://github.com/syamxm/internship-log">Run it locally</a>
+            <a href="https://syamxm.com/#contact">Report a bug or tell me what you think</a>
+          </p>
+        </aside>
         <header class="masthead">
+<div class="brand">
 <pre class="mark" aria-hidden="true">
- ██╗███╗   ██╗████████╗███████╗██████╗ ███╗   ██╗
- ██║████╗  ██║╚══██╔══╝██╔════╝██╔══██╗████╗  ██║
- ██║██╔██╗ ██║   ██║   █████╗  ██████╔╝██╔██╗ ██║
- ██║██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗██║╚██╗██║
- ██║██║ ╚████║   ██║   ███████╗██║  ██║██║ ╚████║
- ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝
-     ██╗      ██████╗  ██████╗
-     ██║     ██╔═══██╗██╔════╝
-     ██║     ██║   ██║██║  ███╗
-     ██║     ██║   ██║██║   ██║
-     ███████╗╚██████╔╝╚██████╔╝
-     ╚══════╝ ╚═════╝  ╚═════╝</pre>
-          <h1 class="sr-only">Internship Log</h1>
+ ██████╗██╗  ██╗██████╗  ██████╗ ███╗   ██╗ ██████╗ ███████╗
+██╔════╝██║  ██║██╔══██╗██╔═══██╗████╗  ██║██╔═══██╗██╔════╝
+██║     ███████║██████╔╝██║   ██║██╔██╗ ██║██║   ██║███████╗
+██║     ██╔══██║██╔══██╗██║   ██║██║╚██╗██║██║   ██║╚════██║
+╚██████╗██║  ██║██║  ██║╚██████╔╝██║ ╚████║╚██████╔╝███████║
+ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚══════╝</pre>
+            <p class="mark-sub">Internship-Log</p>
+          </div>
+          <h1 class="sr-only">Chronos, internship log</h1>
           <p class="masthead-meta">
             <span id="stat-entries">0</span> <span class="unit" id="unit-entries">entries</span><span class="sep"></span>
             <span id="stat-categories">0</span> <span class="unit" id="unit-periods">periods</span><span class="sep"></span>
-            sqlite / log.db
+            <span id="stat-store">sqlite / log.db</span>
           </p>
+          <div class="skin">
+            <label class="sr-only" for="skin-theme">skin</label>
+            <select class="skin-select" id="skin-theme">
+              <option value="syam">Syamxm</option>
+              <option value="nothing">Nothing</option>
+              <option value="eink">E-Ink Paper</option>
+              <option value="win9x">Windows 95</option>
+            </select>
+            <button class="skin-mode" type="button" id="skin-mode" aria-pressed="false">dark</button>
+          </div>
         </header>
 
         <div class="views" role="tablist" aria-label="view">
@@ -126,11 +159,12 @@
         </section>
 
         <footer class="foot">
-          <span>internship-log, localhost only</span>
-          <span>sqlite + node, no build step</span>
+          <span id="foot-where">chronos, localhost only</span>
+          <span id="foot-stack">sqlite + node, no build step</span>
+          <a href="https://syamxm.com/#contact">report an issue</a>
         </footer>
       </div>
     </div>
-    <script type="module" src="/app.js"></script>
+    <script type="module" src="app.js"></script>
   </body>
 </html>

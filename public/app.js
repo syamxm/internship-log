@@ -3,7 +3,7 @@ let entries = [];
 let activeCategory = null; // null = all
 let expanded = new Set();
 
-const api = async (method, path = "", body) => {
+const serverApi = async (method, path = "", body) => {
   const res = await fetch(`/api/entries${path}`, {
     method,
     headers: body ? { "content-type": "application/json" } : undefined,
@@ -12,6 +12,110 @@ const api = async (method, path = "", body) => {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "request failed");
   return data;
+};
+
+// ---- demo store ----
+// No server on GitHub Pages, so the same calls run against localStorage.
+const DEMO_KEY = "internship-log-demo";
+let demo = false;
+
+const DEMO_SEED = [
+  {
+    id: 1,
+    date: "2026-07-06",
+    title: "First day, access and orientation",
+    category: "1st Week Intern",
+    body: "Collected the laptop, got added to the internal GitLab group and the deployment channel. Spent the afternoon reading the runbook for the billing service, which is the thing I will be working on.",
+    tags: "onboarding, gitlab",
+    remarks: "",
+  },
+  {
+    id: 2,
+    date: "2026-07-07",
+    title: "Traced a failing nightly job",
+    category: "1st Week Intern",
+    body: "The nightly reconciliation job had been red for four days. It was a timezone assumption: the cron runs in UTC, the report window was written in local time, so every run before 08:00 read an empty range. Filed the fix and wrote the test that catches it.",
+    tags: "cron, timezones, bug",
+    remarks: "Good catch. Walk the team through it on Monday.",
+  },
+];
+
+const demoAll = () => {
+  try {
+    const raw = localStorage.getItem(DEMO_KEY);
+    return raw ? JSON.parse(raw) : DEMO_SEED;
+  } catch {
+    // Private windows and blocked site data throw instead of returning null.
+    return DEMO_SEED;
+  }
+};
+
+const demoSave = (rows) => {
+  try {
+    localStorage.setItem(DEMO_KEY, JSON.stringify(rows));
+  } catch {
+    /* read-only storage: the page still works for this session */
+  }
+};
+
+// Mirrors the server's validation so both builds reject the same input.
+const demoClean = (b) => {
+  const date = String(b.date ?? "").trim();
+  const title = String(b.title ?? "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("date must be YYYY-MM-DD");
+  if (!title) throw new Error("title required");
+  return {
+    date,
+    title: title.slice(0, 200),
+    category: String(b.category ?? "work").trim().slice(0, 40) || "work",
+    body: String(b.body ?? "").slice(0, 20000),
+    tags: String(b.tags ?? "").trim().slice(0, 200),
+    remarks: String(b.remarks ?? "").slice(0, 2000),
+  };
+};
+
+const demoApi = (method, path = "", body) => {
+  const id = Number(path.split("/")[1]);
+  const rows = demoAll();
+
+  if (method === "GET") {
+    return [...rows].sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
+  }
+  if (method === "POST") {
+    const next = rows.reduce((max, r) => Math.max(max, r.id), 0) + 1;
+    demoSave([...rows, { id: next, ...demoClean(body) }]);
+    return { id: next };
+  }
+  if (method === "PUT" && id) {
+    demoSave(rows.map((r) => (r.id === id ? { id, ...demoClean(body) } : r)));
+    return { id };
+  }
+  if (method === "DELETE" && id) {
+    demoSave(rows.filter((r) => r.id !== id));
+    return { id };
+  }
+  throw new Error("method not allowed");
+};
+
+function enterDemo() {
+  demo = true;
+  $("demo-note").hidden = false;
+  $("stat-store").textContent = "localStorage";
+  $("foot-where").textContent = "internship-log, demo build";
+  $("foot-stack").textContent = "no server, nothing saved";
+}
+
+const api = async (method, path = "", body) => {
+  if (demo) return demoApi(method, path, body);
+  try {
+    return await serverApi(method, path, body);
+  } catch (err) {
+    // A static host 404s the API and file:// refuses it: both land here as a
+    // parse or network error, never as the server's own validation error.
+    if (!(err instanceof TypeError || err instanceof SyntaxError)) throw err;
+    enterDemo();
+    return demoApi(method, path, body);
+  }
 };
 
 // Three states for the fetch: loading, loaded, failed. The list and the
@@ -291,3 +395,35 @@ $("items").addEventListener("click", async (ev) => {
 
 resetForm();
 load();
+
+// ---- skins ----
+// index.html already set the attributes; this keeps the controls in step.
+const root = document.documentElement;
+
+function applySkin(theme, mode) {
+  const dark = theme === "syam" ? "dark" : mode;
+  root.dataset.theme = theme;
+  root.dataset.mode = dark;
+  localStorage.setItem("skin-theme", theme);
+  if (theme !== "syam") localStorage.setItem("skin-mode", mode);
+
+  $("skin-theme").value = theme;
+  $("skin-mode").hidden = theme === "syam";
+  $("skin-mode").textContent = dark;
+  $("skin-mode").setAttribute("aria-pressed", String(dark === "dark"));
+  // --bg, not the computed background: two skins paint a gradient only.
+  document
+    .querySelector('meta[name="theme-color"]')
+    .setAttribute("content", getComputedStyle(root).getPropertyValue("--bg").trim());
+}
+
+const savedMode = () =>
+  localStorage.getItem("skin-mode") ||
+  (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+
+$("skin-theme").addEventListener("change", (ev) => applySkin(ev.target.value, savedMode()));
+$("skin-mode").addEventListener("click", () =>
+  applySkin(root.dataset.theme, root.dataset.mode === "dark" ? "light" : "dark"),
+);
+
+applySkin(localStorage.getItem("skin-theme") || "syam", savedMode());
