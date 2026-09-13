@@ -41,6 +41,12 @@
   box-sizing: border-box;
 }
 
+/* Panels carry their own display value (grid, flex), which outranks the user
+   agent rule for [hidden], so the attribute has to win explicitly. */
+[hidden] {
+  display: none !important;
+}
+
 html {
   scroll-behavior: smooth;
   scrollbar-width: thin;
@@ -127,37 +133,50 @@ a:hover {
   margin: 0 auto;
 }
 
-/* ---- hero ---- */
+/* ---- masthead ----
+   The page is a tool opened every working day, so the identity gets one line
+   and the entries get the rest. The block glyph keeps the terminal voice
+   without a twelve-line ASCII wordmark eating the first screen. */
 
-.hero {
-  padding-bottom: 8px;
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px 24px;
+  padding-bottom: 18px;
 }
 
-.cmdline {
-  font-size: 14px;
+/* The wordmark is the identity, so it stays. Sized by how many of its 48
+   columns have to fit, and capped so it is a masthead rather than a splash
+   screen: the entries start above the fold. */
+.mark {
+  color: var(--purple);
+  font-size: clamp(4.6px, 1.05vw, 8px);
+  line-height: 1;
+  text-shadow: 0 0 12px rgba(124, 58, 237, 0.3);
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.masthead-meta {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.masthead-meta span:not(.sep) {
   color: var(--fg);
-  margin-bottom: 18px;
 }
 
-.tick {
-  color: var(--accent);
-  font-weight: 700;
+.masthead-meta .unit {
+  color: var(--muted);
 }
 
-.cursor {
-  display: inline-block;
-  width: 0.6em;
-  height: 1.05em;
-  margin-left: 2px;
-  background: var(--purple);
-  vertical-align: text-bottom;
-  animation: blink var(--blink) steps(1) infinite;
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
+.sep::before {
+  content: "/";
+  color: var(--faint);
+  margin: 0 8px;
 }
 
 .sr-only {
@@ -169,260 +188,58 @@ a:hover {
   white-space: nowrap;
 }
 
-/* ANSI Shadow wordmark. The glyphs are box-drawing characters, so the size is
-   driven by how many of the 48 columns have to fit the viewport, not by a
-   type scale. */
-.banner {
-  font-size: clamp(6.5px, 2.2vw, 16px);
-  line-height: 1;
-  color: var(--purple);
-  text-shadow: 0 0 12px rgba(124, 58, 237, 0.35);
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-.sub {
-  color: var(--muted);
-  font-size: 14px;
-  margin-top: 10px;
-  max-width: 52ch;
-}
-
-.meta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 20px;
-  margin-top: 20px;
-  font-size: 12.5px;
-}
-
-.meta-row dt {
-  color: var(--dim);
-}
-
-.meta-row dt::after {
-  content: ":";
-}
-
-.meta-row dd {
-  color: var(--fg);
-  margin-right: 4px;
-}
-
-.hero-logo {
-  display: flex;
-  justify-content: center;
-  margin-top: 26px;
-}
-
-.hero-logo pre {
-  font-size: 5px;
-  line-height: 1;
-  min-width: 60ch;
-  min-height: 29em;
-  color: var(--purple);
-  text-shadow: 0 0 14px var(--glow-purple);
-}
-
-@media (min-width: 1100px) {
-  .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    column-gap: 48px;
-    align-items: center;
-  }
-
-  .hero-logo {
-    margin-top: 0;
-  }
-
-  .hero-logo pre {
-    font-size: 9px;
-  }
-}
-
-/* ---- about note ---- */
-
-.note {
-  margin-top: 28px;
-  padding-top: 20px;
-  border-top: 1px solid var(--line);
-}
-
-.note-head {
-  font-size: 13px;
-  color: var(--fg);
-  margin-bottom: 10px;
-}
-
-.note-body {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.9;
-  max-width: 88ch;
-}
-
-/* ---- two-column body ---- */
+/* ---- toolbar ----
+   Searching and writing are the only two things done before reading, so they
+   share one row at the top instead of two stacked blocks. */
 
 .layout {
-  margin-top: 34px;
-  display: grid;
-  gap: 20px;
+  display: block;
 }
 
-@media (min-width: 900px) {
-  .layout {
-    grid-template-columns: 232px minmax(0, 1fr);
-    gap: 40px;
-    align-items: start;
-  }
-}
-
-/* ---- category rail ---- */
-
-.rail {
+.toolbar {
   display: flex;
-  gap: 4px;
-  overflow-x: auto;
-  padding-bottom: 6px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--scroll-thumb) transparent;
-}
-
-.rail::-webkit-scrollbar {
-  height: 6px;
-}
-
-.rail-item {
-  display: flex;
-  align-items: baseline;
   gap: 10px;
-  flex: 0 0 auto;
-  padding: 6px 12px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--dim);
-  font: inherit;
-  font-size: 12.5px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: color 0.15s var(--ease), border-color 0.15s var(--ease), background 0.15s var(--ease);
+  align-items: stretch;
 }
 
-.rail-num {
-  color: var(--faint);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  min-width: 3ch;
-  text-align: right;
-}
-
-.rail-count {
-  margin-left: auto;
-  color: var(--faint);
-  font-size: 11px;
-}
-
-.rail-item:hover {
-  color: var(--muted);
-  border-color: var(--border);
-}
-
-.rail-item.on {
-  color: var(--cat-color);
-  border-color: color-mix(in srgb, var(--cat-color) 45%, transparent);
-  background: color-mix(in srgb, var(--cat-color) 9%, transparent);
-}
-
-.rail-item.on .rail-num,
-.rail-item.on .rail-count {
-  color: color-mix(in srgb, var(--cat-color) 70%, transparent);
-}
-
-@media (min-width: 900px) {
-  .rail {
-    position: sticky;
-    top: 28px;
-    flex-direction: column;
-    overflow: visible;
-    gap: 2px;
-    border-left: 1px solid var(--line);
-    padding: 0;
-  }
-
-  .rail-item {
-    width: 100%;
-    border: none;
-    border-radius: 0;
-    border-left: 2px solid transparent;
-    margin-left: -1px;
-    padding: 7px 12px;
-    white-space: normal;
-    text-align: left;
-  }
-
-  .rail-item:hover {
-    border-color: transparent;
-    border-left-color: var(--faint);
-  }
-
-  .rail-item.on {
-    background: transparent;
-    border-left-color: var(--cat-color);
-  }
-}
-
-/* Holds the document tall enough that swapping a 24-entry category for a
-   5-entry one cannot shrink the page under the current scroll offset. */
-.main {
-  scroll-margin-top: 16px;
-  min-height: calc(100dvh - 120px);
-}
-
-/* ---- prompt ---- */
-
-.prompt {
+.find {
+  position: relative;
+  /* Capped: a search box stretched across 1180px reads as a text editor, and
+     the two controls belong together as one group. */
+  flex: 1 1 auto;
+  max-width: 520px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: var(--bg-raise);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 9px 14px;
-}
-
-.prompt:focus-within {
-  border-color: rgba(124, 58, 237, 0.55);
-}
-
-.prompt-label {
-  color: var(--purple);
-  font-size: 13px;
-  white-space: nowrap;
-  cursor: text;
 }
 
 .search {
-  flex: 1;
-  min-width: 0;
-  background: transparent;
-  border: none;
-  outline: none;
+  width: 100%;
+  min-height: 44px;
+  background: var(--bg-raise);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 74px 8px 14px;
   color: var(--fg);
   font: inherit;
-  font-size: 13.5px;
+  font-size: 13px;
 }
 
 .search::placeholder {
-  color: var(--faint);
+  color: var(--muted);
+}
+
+.find:focus-within {
+  border-radius: 6px;
 }
 
 .clear {
+  position: absolute;
+  right: 6px;
+  min-height: 36px;
+  padding: 0 10px;
   background: transparent;
   border: none;
-  color: var(--dim);
+  color: var(--muted);
   font: inherit;
   font-size: 12px;
   cursor: pointer;
@@ -432,270 +249,137 @@ a:hover {
   color: var(--purple);
 }
 
-.results-label {
-  color: var(--dim);
-  font-size: 12px;
-  margin: 14px 0 12px;
-}
+/* ---- period filters ----
+   One accent for the whole page: the old rail gave every period a random
+   colour, which looked like a legend for information that did not exist. */
 
-.empty {
-  color: var(--dim);
-  font-size: 13px;
-  padding: 28px 0;
-  border-top: 1px solid var(--line);
-}
-
-/* ---- entries ---- */
-
-.items {
-  list-style: none;
-  border-top: 1px solid var(--line);
-  animation: list-in 200ms var(--ease) both;
-}
-
-@keyframes list-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
-
-.card {
-  border-bottom: 1px solid var(--line);
-}
-
-.card-row {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  width: 100%;
-  padding: 11px 4px;
-  background: transparent;
-  border: none;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.card-row:hover .badge {
-  color: var(--cat-color);
-}
-
-.marker {
-  color: var(--faint);
-  font-size: 11px;
-}
-
-.card.expanded .marker {
-  color: var(--cat-color);
-}
-
-.badge {
-  color: var(--fg);
-  font-size: 13.5px;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: color 0.15s var(--ease);
-}
-
-.card.expanded .badge {
-  color: var(--cat-color);
-}
-
-.card-full {
-  color: var(--dim);
-  font-size: 12.5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 4px 4px 18px 26px;
-  max-width: 78ch;
-}
-
-.section-label {
-  color: var(--cat-color);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-}
-
-.section-text {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.8;
-}
-
-.acronyms {
-  border-top: 1px solid var(--line);
-  padding-top: 12px;
-}
-
-.chips {
+.rail {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin: 14px 0 6px;
 }
 
 .chip {
-  background: var(--pill-bg);
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  padding: 2px 9px;
-  font-size: 11.5px;
-  color: var(--muted);
-}
-
-.category-note {
-  color: var(--faint);
-  font-size: 11.5px;
-}
-
-/* ---- footer ---- */
-
-.foot {
-  margin-top: 56px;
-  padding-top: 20px;
-  border-top: 1px solid var(--line);
-  font-size: 12px;
-  color: var(--dim);
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cursor,
-  .items {
-    animation: none;
-  }
-
-  * {
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ---- mechanikos additions ---- */
-
-.section-text {
-  white-space: pre-line;
-}
-
-.tldr {
-  color: var(--fg);
-  font-size: 13.5px;
-  line-height: 1.7;
-  padding: 10px 14px;
-  border-left: 2px solid var(--cat-color);
-  background: color-mix(in srgb, var(--cat-color) 6%, transparent);
-  border-radius: 0 6px 6px 0;
-}
-
-.cmd {
-  background: var(--bg-raise);
+  min-height: 34px;
+  padding: 4px 12px;
+  background: transparent;
   border: 1px solid var(--line);
   border-radius: 6px;
-  padding: 10px 14px;
-  font-size: 12.5px;
-  line-height: 1.7;
-  color: var(--fg);
-  overflow-x: auto;
-}
-
-.deep {
-  border-top: 1px solid var(--line);
-  padding-top: 12px;
-}
-
-.deep-toggle {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  background: transparent;
-  border: none;
-  color: var(--cat-color);
+  color: var(--muted);
   font: inherit;
   font-size: 12.5px;
-  font-weight: 600;
   cursor: pointer;
-  padding: 0;
+  transition: color 0.12s var(--ease), border-color 0.12s var(--ease), background 0.12s var(--ease);
 }
 
-.deep-toggle[aria-expanded="true"] {
-  margin-bottom: 14px;
-}
-
-.deep-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 0;
-  border-top: 1px dashed var(--line);
-}
-
-.deep-head {
+.chip:hover {
   color: var(--fg);
-  font-size: 13px;
-  font-weight: 600;
+  border-color: var(--border);
 }
 
-/* ---- internship log additions ---- */
+.chip.on {
+  background: var(--pill-bg);
+  border-color: rgba(124, 58, 237, 0.55);
+  color: var(--fg);
+}
+
+.chip-count {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.chip.on .chip-count {
+  color: var(--purple);
+}
+
+/* ---- entry form ----
+   A panel, not a fixture. It used to sit open above every entry, which put a
+   blank form between the owner and the thing they came to read. */
 
 .entry-form {
   display: grid;
-  gap: 10px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
   background: var(--bg-raise);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 14px;
-  margin-bottom: 22px;
+  padding: 16px;
+  margin: 16px 0 4px;
+  /* Inputs stretched to 1180px read as a text editor, not a form. */
+  max-width: 880px;
 }
 
-.entry-form .wide {
+.form-head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.form-head h2 {
+  color: var(--fg);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.icon-btn {
+  min-height: 34px;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  color: var(--fg);
+  border-color: var(--border);
+}
+
+.field.wide {
   grid-column: 1 / -1;
 }
 
 .entry-form label {
   display: block;
-  color: var(--dim);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 11.5px;
 }
 
 .entry-form input,
-.entry-form textarea,
-.entry-form select {
+.entry-form textarea {
   width: 100%;
+  min-height: 42px;
   background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: 5px;
-  padding: 7px 10px;
+  border-radius: 6px;
+  padding: 9px 12px;
   color: var(--fg);
   font: inherit;
   font-size: 13px;
 }
 
+.entry-form input::placeholder,
+.entry-form textarea::placeholder {
+  color: var(--muted);
+}
+
 .entry-form input:focus,
-.entry-form textarea:focus,
-.entry-form select:focus {
-  outline: none;
+.entry-form textarea:focus {
   border-color: rgba(124, 58, 237, 0.55);
 }
 
 .entry-form textarea {
-  min-height: 96px;
+  min-height: 92px;
   resize: vertical;
   line-height: 1.7;
 }
@@ -704,20 +388,22 @@ a:hover {
   grid-column: 1 / -1;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .btn {
+  min-height: 44px;
   background: var(--pill-bg);
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: 6px;
   color: var(--purple);
   font: inherit;
   font-size: 12.5px;
   font-weight: 600;
-  padding: 6px 16px;
+  padding: 6px 18px;
   cursor: pointer;
-  transition: background 0.15s var(--ease), color 0.15s var(--ease);
+  white-space: nowrap;
+  transition: background 0.12s var(--ease), color 0.12s var(--ease);
 }
 
 .btn:hover {
@@ -725,16 +411,8 @@ a:hover {
   color: var(--fg);
 }
 
-.btn.ghost {
-  background: transparent;
-  border-color: var(--line);
-  color: var(--dim);
-  font-weight: 400;
-}
-
-.btn.ghost:hover {
-  color: var(--purple);
-  background: transparent;
+.btn:active {
+  transform: translateY(1px);
 }
 
 .form-error {
@@ -742,28 +420,491 @@ a:hover {
   font-size: 12px;
 }
 
-.card-date {
-  color: var(--faint);
+/* ---- the feed ----
+   Hairlines instead of cards: elevation was not communicating hierarchy, it
+   was just boxing every row. The date sits in a fixed gutter so the eye can
+   run down it. */
+
+.results-label {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 16px 0 0;
+}
+
+.results-label:empty {
+  display: none;
+}
+
+.feed {
+  list-style: none;
+  margin-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.row {
+  border-bottom: 1px solid var(--line);
+}
+
+.row-main {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 16px;
+  width: 100%;
+  min-height: 52px;
+  padding: 13px 4px;
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.12s var(--ease), background 0.12s var(--ease);
+}
+
+.row-main:hover {
+  background: rgba(124, 58, 237, 0.05);
+  border-left-color: var(--border);
+}
+
+.row.open .row-main {
+  border-left-color: var(--accent);
+}
+
+.row-date {
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.row-title {
+  color: var(--fg);
+  font-size: 13.5px;
+  overflow-wrap: anywhere;
+}
+
+.row.open .row-title {
+  font-weight: 700;
+}
+
+.row-period {
+  color: var(--muted);
   font-size: 11.5px;
   white-space: nowrap;
 }
 
-.card-actions {
-  display: flex;
-  gap: 10px;
-  padding-top: 4px;
+.row-detail {
+  padding: 0 4px 18px 96px;
+  max-width: 82ch;
 }
 
-.card-actions button {
+.row-text {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.row-remarks {
+  margin-top: 12px;
+  padding-left: 12px;
+  border-left: 2px solid var(--border);
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.75;
+}
+
+.row-remarks span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+  list-style: none;
+}
+
+.tags li {
+  padding: 2px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.row-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.row-actions button {
+  min-height: 34px;
+  padding: 0;
   background: transparent;
   border: none;
-  color: var(--dim);
+  color: var(--muted);
   font: inherit;
-  font-size: 11.5px;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
-  padding: 0;
 }
 
-.card-actions button:hover {
+.row-actions button:hover {
   color: var(--purple);
+}
+
+.empty {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 32px 0;
+  border-top: 1px solid var(--line);
+}
+
+/* ---- footer ---- */
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  justify-content: space-between;
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+@media (max-width: 640px) {
+  .entry-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .row-main {
+    grid-template-columns: 60px minmax(0, 1fr);
+    gap: 6px 12px;
+  }
+
+  .row-period {
+    grid-column: 2;
+  }
+
+  .row-detail {
+    padding-left: 16px;
+  }
+}
+
+/* ---- view tabs ---- */
+
+/* Two views over one dataset, so the switch is a pair of tabs rather than a
+   route: the screen list keeps its rail and filters, the logbook does not. */
+.views {
+  display: flex;
+  gap: 6px;
+  margin: 18px 0 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.view-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  padding: 8px 14px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.view-tab:hover {
+  color: var(--purple);
+}
+
+/* The form inputs drop the default outline for a border-colour focus cue,
+   which is too weak to navigate by keyboard. Put a real ring back for
+   keyboard focus without changing the mouse-click look. */
+.entry-form input:focus-visible,
+.entry-form textarea:focus-visible,
+.search:focus-visible {
+  outline: 1px solid var(--purple);
+  outline-offset: 2px;
+}
+
+.view-tab.on {
+  color: var(--fg);
+  border-bottom-color: var(--accent);
+}
+
+/* ---- logbook ---- */
+
+.book-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.book-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12.5px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.book-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+/* 44px so the one control that matters on a phone is a comfortable target. */
+#print {
+  min-height: 44px;
+}
+
+.book-note {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 18px;
+}
+
+.book-summary {
+  display: block;
+  color: var(--fg);
+  margin-top: 4px;
+}
+
+/* Reviewing the printout is where typos get spotted, so each row carries a
+   way back into the form for that day. */
+.row-edit {
+  display: block;
+  margin-top: 2px;
+  /* 44px would double the height of every row, so this sits at the 24px
+     minimum target size instead, which a dense table can carry. */
+  padding: 6px 0;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.row-edit:hover {
+  color: var(--purple);
+}
+
+.book-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12.5px;
+}
+
+/* Fixed widths because the printed book has fixed widths: the date is one
+   short token, the work column carries the paragraph, remarks take a note. */
+.col-date {
+  width: 16%;
+}
+.col-work {
+  width: 56%;
+}
+.col-remarks {
+  width: 28%;
+}
+
+.book-table th,
+.book-table td {
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.book-table thead th {
+  color: var(--purple);
+  font-size: 11.5px;
+  font-weight: 700;
+  background: var(--sel);
+}
+
+.book-table td {
+  color: var(--muted);
+}
+
+/* The period heading spans all three columns, the way it is written by hand
+   across the top of a page in the UiTM book. */
+.book-table .period th {
+  background: var(--bg-raise);
+  color: var(--fg);
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+}
+
+.col-work strong {
+  color: var(--fg);
+  font-weight: 700;
+}
+
+.work-body {
+  display: block;
+  margin-top: 6px;
+  line-height: 1.65;
+}
+
+.book-empty {
+  margin-top: 20px;
+}
+
+/* On screen the remarks stay readable but struck through, so it is obvious
+   they exist and are being withheld from the paper copy. */
+body.hide-remarks .remark-text {
+  text-decoration: line-through;
+  text-decoration-color: var(--faint);
+}
+
+/* On a phone the three columns squeeze to a few words per line, so the table
+   keeps a readable width and scrolls sideways instead. The page itself never
+   scrolls sideways; only this container does. */
+@media screen and (max-width: 760px) {
+  .book-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+
+  .book-table {
+    min-width: 640px;
+    font-size: 11.5px;
+  }
+
+  .book-table th,
+  .book-table td {
+    padding: 7px 8px;
+  }
+}
+
+.col-date {
+  white-space: nowrap;
+}
+
+.row-edit {
+  white-space: nowrap;
+}
+
+/* ---- print: the page that gets handed in ---- */
+
+@page {
+  size: A4;
+  margin: 18mm 14mm;
+}
+
+@media print {
+  /* Everything that is screen furniture is dropped: what is left on paper is
+     the three-column table and nothing else. */
+  .masthead,
+  .views,
+  .layout,
+  .book-bar,
+  .book-note,
+  .foot {
+    display: none !important;
+  }
+
+  html,
+  body,
+  .page,
+  .shell {
+    background: #fff;
+    color: #000;
+    padding: 0;
+    margin: 0;
+    max-width: none;
+  }
+
+  .book[hidden] {
+    display: block !important;
+  }
+
+  /* Chromium clips a collapsed border that sits on the page-box edge, so the
+     header row loses its top rule on every page, including the repeats. The
+     rule is drawn inside the cell instead, where nothing clips it. A border
+     is used rather than a background so it survives with background graphics
+     switched off in the print dialog. */
+  .book-table thead th {
+    position: relative;
+  }
+
+  .book-table thead th::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    border-top: 0.6pt solid #000;
+  }
+
+  .book-table {
+    width: 100%;
+    font-size: 10.5pt;
+    color: #000;
+  }
+
+  .book-table thead {
+    display: table-header-group;
+  }
+
+  .book-table th,
+  .book-table td {
+    border: 0.6pt solid #000;
+    color: #000;
+    background: transparent;
+    padding: 3mm;
+  }
+
+  .book-table thead th,
+  .book-table .period th {
+    font-size: 9.5pt;
+    background: transparent;
+    color: #000;
+  }
+
+  .book-table tr,
+  .book-table .period th {
+    break-inside: avoid;
+  }
+
+  .book-table .period th {
+    background: transparent;
+    text-align: center;
+  }
+
+  .col-work strong {
+    color: #000;
+  }
+
+  .row-edit {
+    display: none;
+  }
+
+  /* Unchecked toggle: the column prints empty, sized for a handwritten note.
+     visibility keeps the cell height and the border, and keeps the text out of
+     the PDF text layer, which colour: transparent would not. */
+  body.hide-remarks .remark-text {
+    visibility: hidden;
+    text-decoration: none;
+  }
 }
