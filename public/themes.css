@@ -18,18 +18,13 @@
     color-scheme: light;
   }
 
-  /* ============ Nothing ============
-     One canvas, one ink, one red, and the dot matrix. Ndot is not
-     redistributable, so the matrix is the canvas grid and the type is a
-     grotesk in wide caps: an approximation, not the shipped font. */
+  /* ---- Nothing ---- */
 
   [data-theme="nothing"] {
     --font-ui: "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
     --r: 3px;
     --r-sm: 2px;
     --mark-glow: none;
-    --btn-shadow: none;
-    --panel-shadow: none;
     --danger: #d71921;
     --dot-size: 14px;
   }
@@ -40,7 +35,6 @@
     --sel: #ffe3e4;
     --fg: #000000;
     --muted: #4a4a4a;
-    --dim: #6e6e6e;
     --faint: #b5b5b5;
     --accent: #d71921;
     --purple: #b3141b;
@@ -62,7 +56,6 @@
     --sel: #3a0c0f;
     --fg: #ffffff;
     --muted: #b4b4b4;
-    --dim: #8c8c8c;
     --faint: #5a5a5a;
     --accent: #ff3b41;
     --purple: #ff5b60;
@@ -79,7 +72,6 @@
     --on-accent: #000000;
   }
 
-  /* The dot matrix is the skin: one grid, nothing layered over it. */
   [data-theme="nothing"] body {
     background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
     background-size: var(--dot-size) var(--dot-size);
@@ -88,7 +80,6 @@
     letter-spacing: 0.01em;
   }
 
-  /* Labels shout, content does not: entries stay sentence case. */
   [data-theme="nothing"] .view-tab,
   [data-theme="nothing"] .btn,
   [data-theme="nothing"] .icon-btn,
@@ -120,7 +111,6 @@
     color: var(--fg);
   }
 
-  /* The only red on the page: active filter, open row, focused field. */
   [data-theme="nothing"] .chip.on {
     background: var(--accent);
     border-color: var(--accent);
@@ -131,12 +121,6 @@
     color: var(--on-accent);
   }
 
-  [data-theme="nothing"] .entry-form {
-    border-width: 1px;
-    border-color: var(--border);
-    background: var(--bg-raise);
-  }
-
   [data-theme="nothing"] .search,
   [data-theme="nothing"] .entry-form input,
   [data-theme="nothing"] .entry-form textarea {
@@ -144,36 +128,17 @@
     background: var(--bg-raise);
   }
 
-  [data-theme="nothing"] .row.open .row-main {
-    border-left-color: var(--accent);
-  }
-
-  [data-theme="nothing"] .view-tab.on {
-    color: var(--fg);
-    border-bottom-color: var(--accent);
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-  }
-
-
   [data-theme="nothing"] .mark {
     color: var(--accent);
   }
 
-  /* ============ E-Ink Paper ============
-     The app becomes a printed A4 logbook, so the screen is that paper: warm
-     sheet, one ink, hairline rules, no glow. Serif because that is what the
-     handed-in book is read in, not for decoration. */
+  /* ---- E-Ink Paper ---- */
 
   [data-theme="eink"] {
     --font-ui: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
     --r: 2px;
     --r-sm: 2px;
     --mark-glow: none;
-    --btn-shadow: none;
-    --panel-shadow: none;
   }
 
   [data-theme="eink"][data-mode="light"] {
@@ -182,7 +147,6 @@
     --sel: #e2ded1;
     --fg: #1c1a17;
     --muted: #4f4b43;
-    --dim: #6b665c;
     --faint: #a9a294;
     --accent: #1c1a17;
     --purple: #33302a;
@@ -198,14 +162,12 @@
     --page-bg: var(--bg);
   }
 
-  /* An e-reader at night: the same sheet inverted. A dark page, not a dark UI. */
   [data-theme="eink"][data-mode="dark"] {
     --bg: #14130f;
     --bg-raise: #1b1a15;
     --sel: #2e2c24;
     --fg: #e8e4d8;
     --muted: #b4afa1;
-    --dim: #938e81;
     --faint: #5e594e;
     --accent: #e8e4d8;
     --purple: #cfcabb;
@@ -256,11 +218,6 @@
     font-weight: 600;
   }
 
-  [data-theme="eink"] .btn:hover {
-    background: var(--pill-bg-hover);
-    color: var(--fg);
-  }
-
   /* The selected filter is the one thing printed solid. */
   [data-theme="eink"] .chip.on {
     background: var(--fg);
@@ -289,8 +246,6 @@
     --r: 0;
     --r-sm: 0;
     --mark-glow: none;
-    --btn-shadow: none;
-    --panel-shadow: none;
     /* Swapped per mode so the 3D reads on both canvases. */
     --bevel-light: #ffffff;
     --bevel-soft: #dfdfdf;
@@ -304,7 +259,6 @@
     --sel: #000080;
     --fg: #000000;
     --muted: #000000;
-    --dim: #404040;
     --faint: #808080;
     --accent: #000080;
     --purple: #000080;
@@ -327,7 +281,6 @@
     --sel: #008080;
     --fg: #ffffff;
     --muted: #e0e0e0;
-    --dim: #b0b0b0;
     --faint: #707070;
     --accent: #00ffff;
     --purple: #00ffff;
@@ -447,7 +400,7 @@
     color: var(--fg);
   }
 
-  /* The dotted marching rectangle, still the clearest cue on flat grey. */
+  /* Dotted keyboard focus matches the classic desktop controls. */
   [data-theme="win9x"] :focus-visible {
     outline: 1px dotted var(--fg);
     outline-offset: -4px;

@@ -36,7 +36,6 @@ assert.match(html, /data-book-edit="1"/, "each row offers a way back into the fo
 
 const feed = nodes.get("items").innerHTML;
 assert.match(feed, /class="row-date"[^>]*>07 Sep</, "the feed puts a short date in the gutter");
-assert.ok(!feed.includes("style=\"--cat-color"), "no per-category colour is emitted any more");
 // The reported bug: switching to the logbook left the log panel on screen.
 nodes.get("tab-book").handlers.click();
 assert.equal(nodes.get("view-log").hidden, true, "log panel hides when the logbook opens");

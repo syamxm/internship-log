@@ -3,7 +3,7 @@
 A single-page daily log for a UiTM internship: what you worked on, what broke,
 what you learned. Entries live in a local SQLite file, and a logbook view prints
 to the three-column form the university asks for. No build step, no framework,
-no dependencies, just Node's standard library and four static files.
+no dependencies, just Node's standard library and static frontend files.
 
 ## Requirements
 
@@ -107,7 +107,7 @@ Stop the server with `Ctrl+C`.
 ## Two views
 
 - **log**: the entries themselves, newest first, one hairline row per day.
-  Search and the period filters sit at the top; the form opens as a panel from
+  Search and the period filters sit at the top; the form opens as a modal from
   "new entry" or from a row's edit link, and closes with Escape. `category`
   doubles as the UiTM period heading (`1st Day Intern`, `1st Week Intern`).
 - **logbook**: every entry, oldest first, grouped under its period heading, in
@@ -120,13 +120,9 @@ Left and right arrow keys move between the two tabs.
 
 Four looks, picked from the control in the masthead and remembered per browser:
 
-- **Syamxm**, the house style: dark, purple, monospaced. Dark only, by
-  definition.
-- **Nothing**: one canvas, one ink, one red, and a dot-matrix grid behind the
-  page. Approximation, not the real thing: the Ndot typeface is not
-  redistributable, so the dot matrix is drawn as the canvas instead.
-- **E-Ink Paper**: a warm sheet, one ink, hairline rules, no glow. The tool
-  exists to become a printed logbook, so this skin is that paper.
+- **Syamxm**: dark-only, purple, monospaced.
+- **Nothing**: monochrome with red accents and a dot-matrix background.
+- **E-Ink Paper**: paper-like colors, serif text, and thin borders.
 - **Windows 95**: raised and sunken bevels, square corners, teal desktop.
 
 Each skin apart from the house style carries a light and a dark mode, seeded
