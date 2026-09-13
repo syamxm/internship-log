@@ -1,8 +1,15 @@
-log.db
-log.db-journal
 node_modules
 /.agents/skills/design-taste-frontend
 /.claude/skills
 /skills-lock.json
 /PROMPT.md
 /log.db.bak
+
+# local database — internship notes stay off GitHub
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+.env
+.env.*
