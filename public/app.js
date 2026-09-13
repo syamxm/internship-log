@@ -294,15 +294,12 @@ function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 }
 
-// The form is a panel, not a permanent fixture: the entries are what the page
-// is for, so the form opens when there is something to write and closes again.
 const openForm = () => {
-  $("form").hidden = false;
-  $("form").scrollIntoView({ block: "nearest" });
+  $("entry-dialog").showModal();
 };
 
 const closeForm = () => {
-  $("form").hidden = true;
+  $("entry-dialog").close();
   resetForm();
 };
 
@@ -359,9 +356,9 @@ $("new").addEventListener("click", () => {
   $("f-title").focus();
 });
 
-// Escape closes the panel, the same as any other dialog on the page.
-$("form").addEventListener("keydown", (ev) => {
-  if (ev.key === "Escape") closeForm();
+$("entry-dialog").addEventListener("cancel", (ev) => {
+  ev.preventDefault();
+  closeForm();
 });
 $("search").addEventListener("input", render);
 $("clear").addEventListener("click", () => {

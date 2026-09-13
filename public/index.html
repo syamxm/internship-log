@@ -26,8 +26,8 @@
   <body>
     <div class="page">
       <div class="shell">
-        <aside class="demo-note" id="demo-note" hidden>
-          <p class="demo-head">This is a demo. Nothing you type here is saved anywhere but this browser.</p>
+        <details class="demo-note" id="demo-note" hidden>
+          <summary>This is a demo. <span>Click to learn more.</span></summary>
           <p>
             No server sits behind this page. Entries go into this browser's localStorage, so they
             disappear when you clear site data and they never follow you to another browser, another
@@ -38,7 +38,7 @@
             <a href="https://github.com/syamxm/internship-log">Run it locally</a>
             <a href="https://syamxm.com/#contact">Report a bug or tell me what you think</a>
           </p>
-        </aside>
+        </details>
         <header class="masthead">
 <div class="brand">
 <pre class="mark" aria-hidden="true">
@@ -80,12 +80,13 @@
               <input class="search" id="search" placeholder="search entries" />
               <button class="clear" type="button" id="clear" hidden>clear</button>
             </div>
-            <button class="btn" type="button" id="new">new entry</button>
+            <button class="btn" type="button" id="new" aria-haspopup="dialog">new entry</button>
           </div>
 
           <nav class="rail" id="rail" aria-label="filter by period"></nav>
 
-          <form class="entry-form" id="form" autocomplete="off" hidden>
+          <dialog class="entry-dialog" id="entry-dialog" aria-labelledby="form-title">
+          <form class="entry-form" id="form" autocomplete="off">
             <div class="form-head">
               <h2 id="form-title">New entry</h2>
               <button class="icon-btn" type="button" id="cancel" aria-label="close the form">close</button>
@@ -102,7 +103,7 @@
             </div>
             <div class="field wide">
               <label for="f-title">what happened</label>
-              <input id="f-title" placeholder="one line, this is the logbook summary" required />
+              <input id="f-title" placeholder="one line, this is the logbook summary" required autofocus />
             </div>
             <div class="field wide">
               <label for="f-body">notes</label>
@@ -121,6 +122,7 @@
               <span class="form-error" id="error" role="alert"></span>
             </div>
           </form>
+          </dialog>
 
           <p class="results-label" id="results"></p>
           <ol class="feed" id="items"></ol>
