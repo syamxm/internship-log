@@ -19,12 +19,18 @@ db.exec(`
   )
 `);
 
+// SQLite has no ALTER TABLE ... ADD COLUMN IF NOT EXISTS, so check pragma first.
+const hasRemarks = db
+  .prepare("SELECT * FROM pragma_table_info('entries') WHERE name = 'remarks'")
+  .get();
+if (!hasRemarks) db.exec("ALTER TABLE entries ADD COLUMN remarks TEXT NOT NULL DEFAULT ''");
+
 const list = db.prepare("SELECT * FROM entries ORDER BY date DESC, id DESC");
 const insert = db.prepare(
-  "INSERT INTO entries (date, title, category, body, tags) VALUES (?, ?, ?, ?, ?)"
+  "INSERT INTO entries (date, title, category, body, tags, remarks) VALUES (?, ?, ?, ?, ?, ?)"
 );
 const update = db.prepare(
-  "UPDATE entries SET date = ?, title = ?, category = ?, body = ?, tags = ? WHERE id = ?"
+  "UPDATE entries SET date = ?, title = ?, category = ?, body = ?, tags = ?, remarks = ? WHERE id = ?"
 );
 const remove = db.prepare("DELETE FROM entries WHERE id = ?");
 
@@ -69,6 +75,7 @@ const clean = (b) => {
     String(b.category ?? "work").trim().slice(0, 40) || "work",
     String(b.body ?? "").slice(0, 20000),
     String(b.tags ?? "").trim().slice(0, 200),
+    String(b.remarks ?? "").slice(0, 2000),
   ];
 };
 

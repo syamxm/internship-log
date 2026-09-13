@@ -1,3 +1,8 @@
 log.db
 log.db-journal
 node_modules
+/.agents/skills/design-taste-frontend
+/.claude/skills
+/skills-lock.json
+/PROMPT.md
+/log.db.bak
