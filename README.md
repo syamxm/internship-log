@@ -1,55 +1,18 @@
-# internship-log
-
-Local daily log for a UiTM internship, with a logbook view that prints to the
-three-column form the university asks for.
-
-## Run
-
-```sh
-npm start          # node server.js, binds 127.0.0.1:4173
-```
-
-No dependencies, no build step. Node 26 `node:sqlite` and `node:http` only.
-Data lives in `log.db` next to the server.
-
-## Two views
-
-- **log**: the entries themselves, newest first, one hairline row per day.
-  Search and the period filters sit at the top; the form opens as a panel from
-  "new entry" or from a row's edit link, and closes with Escape. `category`
-  doubles as the UiTM period heading (`1st Day Intern`, `1st Week Intern`).
-- **logbook**: every entry, oldest first, grouped under its period heading, in
-  a DATE / EXACT NATURE OF WORK DONE / SUPERVISOR'S REMARKS table. Each row has
-  an "edit this day" link back into the form, which never prints.
-
-Left and right arrow keys move between the two tabs.
-
-## Printing the logbook
-
-Open the logbook view, pick whether the remarks column prints filled or blank,
-then "send to print dialog" and choose Save as PDF. The print stylesheet sets
-A4, drops all screen furniture, repeats the table header on every page, and
-keeps rows from splitting across pages.
-
-## Schema
-
-`entries(id, date, title, category, body, tags, remarks, created_at)`.
-Dates are stored `YYYY-MM-DD` and rendered `DD/MM/YYYY` in the logbook only.
-The `remarks` column is added by a guarded `ALTER TABLE` on startup.
 # Internship Log
 
-A single-page daily log for an internship: what you worked on, what broke, what
-you learned. Entries live in a local SQLite file. No build step, no framework,
-no dependencies — just Node's standard library and three static files.
+A single-page daily log for a UiTM internship: what you worked on, what broke,
+what you learned. Entries live in a local SQLite file, and a logbook view prints
+to the three-column form the university asks for. No build step, no framework,
+no dependencies, just Node's standard library and three static files.
 
 ## Requirements
 
-- **Node.js 22.5 or newer** — the server uses the built-in `node:sqlite` module,
+- **Node.js 22.5 or newer.** The server uses the built-in `node:sqlite` module,
   which does not exist in earlier versions. Node 24 LTS or newer is recommended;
   on Node 22.x and 23.x you will see an `ExperimentalWarning` on startup, which
   is harmless.
 
-That's the whole list. There is no `npm install` step — `package.json` has no
+That's the whole list. There is no `npm install` step: `package.json` has no
 dependencies.
 
 Check your version:
@@ -96,8 +59,8 @@ brew install node
 ```
 
 Without Homebrew, download the macOS installer from
-[nodejs.org](https://nodejs.org/en/download) — pick the `.pkg` matching your
-chip (Apple silicon: ARM64; Intel: x64).
+[nodejs.org](https://nodejs.org/en/download), picking the `.pkg` that matches
+your chip (Apple silicon: ARM64; Intel: x64).
 
 ### Windows
 
@@ -141,15 +104,34 @@ set PORT=8080 && npm start
 
 Stop the server with `Ctrl+C`.
 
+## Two views
+
+- **log**: the entries themselves, newest first, one hairline row per day.
+  Search and the period filters sit at the top; the form opens as a panel from
+  "new entry" or from a row's edit link, and closes with Escape. `category`
+  doubles as the UiTM period heading (`1st Day Intern`, `1st Week Intern`).
+- **logbook**: every entry, oldest first, grouped under its period heading, in
+  a DATE / EXACT NATURE OF WORK DONE / SUPERVISOR'S REMARKS table. Each row has
+  an "edit this day" link back into the form, which never prints.
+
+Left and right arrow keys move between the two tabs.
+
+## Printing the logbook
+
+Open the logbook view, pick whether the remarks column prints filled or blank,
+then "send to print dialog" and choose Save as PDF. The print stylesheet sets
+A4, drops all screen furniture, repeats the table header on every page, and
+keeps rows from splitting across pages.
+
 ## Your data
 
 Entries are written to `log.db` in the project folder, created automatically on
-first run. This file is listed in `.gitignore` and is never committed — your
+first run. This file is listed in `.gitignore` and is never committed: your
 internship notes stay on your own machine.
 
 To back it up, copy the file. To start fresh, delete it and restart the server.
 
-Nothing is sent anywhere: the server binds to `127.0.0.1`, so it is reachable
+Nothing is sent anywhere. The server binds to `127.0.0.1`, so it is reachable
 only from your own computer and not from the rest of your network.
 
 ## Keeping it running
@@ -161,7 +143,7 @@ survives reboots and logouts:
 npm install -g pm2
 pm2 start ecosystem.config.cjs
 pm2 save
-pm2 startup      # macOS / Linux — prints a command to run once
+pm2 startup      # macOS / Linux, prints a command to run once
 ```
 
 On Windows, use [pm2-windows-startup](https://www.npmjs.com/package/pm2-windows-startup)
@@ -186,14 +168,20 @@ The API is four routes under `/api/entries`:
 | `PUT` | `/api/entries/:id` | Replace an entry |
 | `DELETE` | `/api/entries/:id` | Delete an entry |
 
+## Schema
+
+`entries(id, date, title, category, body, tags, remarks, created_at)`.
+
 An entry is a `date` (`YYYY-MM-DD`, required), a `title` (required), plus
-optional `category`, `body`, and comma-separated `tags`.
+optional `category`, `body`, comma-separated `tags`, and `remarks`. Dates are
+stored `YYYY-MM-DD` and rendered `DD/MM/YYYY` in the logbook only. The
+`remarks` column is added by a guarded `ALTER TABLE` on startup.
 
 ## A note on security
 
 There is no authentication, because there is no need for any: the server listens
 on `127.0.0.1` only. If you change that bind address to expose the app on your
-network or the internet, you must add authentication first — otherwise anyone
+network or the internet, you must add authentication first, otherwise anyone
 who can reach the port can read, edit, and delete every entry.
 
 ## License
