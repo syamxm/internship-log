@@ -1,10 +1,12 @@
+const PORT = 4173;
+
 module.exports = {
   apps: [
     {
-      name: "internship-log",
+      name: `chronos-${PORT}`,
       script: "server.js",
       cwd: __dirname,
-      env: { PORT: 4173 },
+      env: { PORT },
     },
   ],
 };
