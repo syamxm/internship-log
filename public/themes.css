@@ -184,7 +184,9 @@
   }
 
   /* Paper has no elevation and no animation. */
-  [data-theme="eink"] * {
+  [data-theme="eink"] *,
+  [data-theme="eink"] ::backdrop {
+    animation: none !important;
     transition: none !important;
     box-shadow: none !important;
   }
@@ -333,6 +335,8 @@
   /* Pressed: bevel inverts, label shifts a pixel down and right. */
   [data-theme="win9x"] .btn:active,
   [data-theme="win9x"] .icon-btn:active,
+  [data-theme="win9x"] .chip:active,
+  [data-theme="win9x"] .view-tab:active,
   [data-theme="win9x"] .chip.on,
   [data-theme="win9x"] .view-tab.on {
     border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark);

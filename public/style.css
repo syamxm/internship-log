@@ -27,7 +27,9 @@
   --line: rgba(124, 58, 237, 0.14);
   --border: rgba(124, 58, 237, 0.24);
   --pill-bg: rgba(124, 58, 237, 0.12);
+  /* easeOutQuint, the Hyprland workspace curve. */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --t: 160ms;
   --scroll-thumb: rgba(124, 58, 237, 0.45);
   --scroll-thumb-hover: rgba(167, 139, 250, 0.7);
 
@@ -97,6 +99,12 @@ html {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  *,
+  ::backdrop {
+    animation: none !important;
+    transition: none !important;
   }
 }
 
@@ -265,10 +273,21 @@ a:hover {
   background: var(--bg-raise);
   border: 1px solid var(--border);
   border-radius: var(--r);
-  padding: 8px 74px 8px 14px;
+  padding: 8px 74px 8px 32px;
   color: var(--fg);
   font: inherit;
   font-size: 13px;
+  caret-color: var(--purple);
+  caret-shape: block;
+}
+
+.prompt {
+  position: absolute;
+  left: 14px;
+  color: var(--purple);
+  font-size: 13px;
+  font-weight: 700;
+  pointer-events: none;
 }
 
 .search::placeholder {
@@ -314,7 +333,8 @@ a:hover {
   font: inherit;
   font-size: 12.5px;
   cursor: pointer;
-  transition: color 0.12s var(--ease), border-color 0.12s var(--ease), background 0.12s var(--ease);
+  transition: color 0.12s var(--ease), border-color 0.12s var(--ease), background 0.12s var(--ease),
+    transform var(--t) var(--ease);
 }
 
 .chip:hover {
@@ -459,7 +479,7 @@ body:has(.entry-dialog[open]) {
   padding: 6px 18px;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.12s var(--ease), color 0.12s var(--ease);
+  transition: background 0.12s var(--ease), color 0.12s var(--ease), transform var(--t) var(--ease);
 }
 
 .btn:hover {
@@ -467,8 +487,11 @@ body:has(.entry-dialog[open]) {
   color: var(--fg);
 }
 
-.btn:active {
-  transform: translateY(1px);
+/* A short press, the way a key gives under the finger. */
+.btn:active,
+.chip:active,
+.view-tab:active {
+  transform: scale(0.98);
 }
 
 .form-error {
@@ -673,6 +696,7 @@ body:has(.entry-dialog[open]) {
   padding: 8px 14px;
   min-height: 44px;
   cursor: pointer;
+  transition: color 0.12s var(--ease), border-color var(--t) var(--ease), transform var(--t) var(--ease);
 }
 
 .view-tab:hover {
@@ -813,6 +837,23 @@ body:has(.entry-dialog[open]) {
   margin-top: 20px;
 }
 
+/* The footer and the signature rows only exist on paper. */
+.book-table tfoot,
+.book-table .sign {
+  display: none;
+}
+
+.sign-line {
+  display: inline-block;
+  width: 62mm;
+  margin: 0 8mm 0 3mm;
+  border-bottom: 0.6pt solid #000;
+}
+
+.sign-line.short {
+  width: 32mm;
+}
+
 /* On screen the remarks stay readable but struck through, so it is obvious
    they exist and are being withheld from the paper copy. */
 body.hide-remarks .remark-text {
@@ -841,14 +882,86 @@ body.hide-remarks .remark-text {
   }
 }
 
+/* ---- motion ---- */
+
+/* The log sits left of the logbook, so each view slides in from its own side,
+   like a workspace switch. A panel restarts its animation each time it stops
+   being display: none, so no script is needed. */
+@keyframes from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+
+@keyframes from-right {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+#view-log {
+  animation: from-left calc(var(--t) * 1.5) var(--ease);
+}
+
+#view-book {
+  animation: from-right calc(var(--t) * 1.5) var(--ease);
+}
+
+.entry-dialog[open] {
+  animation: pop-in var(--t) var(--ease);
+}
+
+.entry-dialog[open]::backdrop {
+  animation: fade-in var(--t) var(--ease);
+}
+
+/* Only the row that was just opened, so the open rows do not replay on every
+   keystroke in the search box, which re-renders the list. */
+.row-detail.opening {
+  animation: drop-in var(--t) var(--ease);
+}
+
 /* ---- print: the page that gets handed in ---- */
 
 @page {
   size: A4;
   margin: 18mm 14mm;
+
+  @bottom-center {
+    content: "page " counter(page) " of " counter(pages);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 8pt;
+    color: #000;
+  }
 }
 
 @media print {
+  * {
+    animation: none !important;
+  }
+
   /* Everything that is screen furniture is dropped: what is left on paper is
      the three-column table and nothing else. */
   .demo-note,
@@ -876,24 +989,13 @@ body.hide-remarks .remark-text {
     display: block !important;
   }
 
-  /* Chromium clips a collapsed border that sits on the page-box edge, so the
-     header row loses its top rule on every page, including the repeats. The
-     rule is drawn inside the cell instead, where nothing clips it. A border
-     is used rather than a background so it survives with background graphics
-     switched off in the print dialog. */
-  .book-table thead th {
-    position: relative;
-  }
-
-  .book-table thead th::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    border-top: 0.6pt solid #000;
-  }
-
+  /* Chromium clips anything that touches the right edge of the page box,
+     border or outline, so the table stops 1pt short of it. Separate borders
+     keep each line inside its own cell, where the page edge cannot clip it. */
   .book-table {
-    width: 100%;
+    width: calc(100% - 1pt);
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: 10.5pt;
     color: #000;
   }
@@ -902,12 +1004,31 @@ body.hide-remarks .remark-text {
     display: table-header-group;
   }
 
+  /* Each cell draws only its top and right rule, so no line is ever drawn
+     twice. The left rule comes from the first cell, and the repeating footer
+     below draws the bottom rule on every page. */
   .book-table th,
   .book-table td {
-    border: 0.6pt solid #000;
+    border: 0 solid #000;
+    border-width: 0.6pt 0.6pt 0 0;
     color: #000;
     background: transparent;
     padding: 3mm;
+  }
+
+  .book-table tr > :first-child {
+    border-left-width: 0.6pt;
+  }
+
+  /* A page break between two rows would otherwise leave the last row on the
+     page open at the bottom. Chromium repeats a footer group on every page. */
+  .book-table tfoot {
+    display: table-footer-group;
+  }
+
+  .book-table tfoot td {
+    padding: 0;
+    border-width: 0.6pt 0 0;
   }
 
   .book-table thead th,
@@ -925,6 +1046,17 @@ body.hide-remarks .remark-text {
   .book-table .period th {
     background: transparent;
     text-align: center;
+    break-after: avoid;
+  }
+
+  .book-table .sign {
+    display: table-row;
+    break-inside: avoid;
+  }
+
+  .book-table .sign td {
+    padding: 5mm 3mm 3mm;
+    font-size: 9.5pt;
   }
 
   .col-work strong {

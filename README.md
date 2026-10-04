@@ -134,7 +134,8 @@ logbook comes out identical whichever one is on.
 Open the logbook view, pick whether the remarks column prints filled or blank,
 then "send to print dialog" and choose Save as PDF. The print stylesheet sets
 A4, drops all screen furniture, repeats the table header on every page, and
-keeps rows from splitting across pages.
+keeps rows from splitting across pages. Each page is numbered ("page 2 of 13"),
+and each period ends with a line for the supervisor's signature and date.
 
 ## Your data
 
