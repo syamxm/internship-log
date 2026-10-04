@@ -27,6 +27,12 @@ assert.ok(
   "period heading row comes before the rows it covers"
 );
 assert.equal((html.match(/class="period"/g) ?? []).length, 2, "one heading row per period");
+assert.equal((html.match(/class="sign"/g) ?? []).length, 2, "one signature row per period");
+assert.ok(
+  html.indexOf('class="sign"') > html.indexOf("07/09/2026") &&
+    html.indexOf('class="sign"') < html.indexOf("1st Week Intern"),
+  "the signature row closes its period, before the next heading"
+);
 assert.ok(!html.includes("<one>"), "titles are escaped before reaching innerHTML");
 assert.equal(nodes.get("book-empty").hidden, true, "empty state hidden when rows exist");
 

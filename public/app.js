@@ -189,9 +189,11 @@ function renderBook() {
       }, ${uitmDate(rows[0].date)} to ${uitmDate(rows[rows.length - 1].date)}`
     : "";
 
+  // The supervisor signs off each period by hand, under its last day.
+  const sign = `<tr class="sign"><td colspan="3">Supervisor's signature<span class="sign-line"></span>Date<span class="sign-line short"></span></td></tr>`;
   let period = null;
   $("book-body").innerHTML = rows
-    .map((e) => {
+    .map((e, i) => {
       const head =
         e.category === period
           ? ""
@@ -203,7 +205,7 @@ function renderBook() {
           e.body ? `<span class="work-body">${esc(e.body)}</span>` : ""
         }</td>
         <td class="col-remarks"><span class="remark-text">${esc(e.remarks ?? "")}</span></td>
-      </tr>`;
+      </tr>${rows[i + 1]?.category === e.category ? "" : sign}`;
     })
     .join("");
 }
@@ -372,7 +374,8 @@ $("items").addEventListener("click", async (ev) => {
   if (toggle) {
     const id = Number(toggle);
     expanded.has(id) ? expanded.delete(id) : expanded.add(id);
-    return render();
+    render();
+    return document.querySelector(`[data-toggle="${id}"] + .row-detail`)?.classList.add("opening");
   }
   if (edit) editEntry(Number(edit));
   if (del && confirm("delete this entry?")) {

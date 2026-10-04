@@ -77,6 +77,7 @@
           <div class="toolbar">
             <div class="find">
               <label for="search" class="sr-only">search entries</label>
+              <span class="prompt" aria-hidden="true">&gt;</span>
               <input class="search" id="search" placeholder="search entries" />
               <button class="clear" type="button" id="clear" hidden>clear</button>
             </div>
@@ -153,6 +154,7 @@
               </tr>
             </thead>
               <tbody id="book-body"></tbody>
+              <tfoot aria-hidden="true"><tr><td colspan="3"></td></tr></tfoot>
             </table>
           </div>
           <p class="empty book-empty" id="book-empty" hidden>
