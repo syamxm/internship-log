@@ -1,6 +1,3 @@
-// Self-check for the logbook render: grouping, date format, escaping, empty
-// state. Runs app.js against a stub DOM so no browser is needed.
-//   node test-logbook.mjs
 import assert from "node:assert/strict";
 import { install } from "./test-dom.mjs";
 
@@ -42,21 +39,17 @@ assert.match(html, /data-book-edit="1"/, "each row offers a way back into the fo
 
 const feed = nodes.get("items").innerHTML;
 assert.match(feed, /class="row-date"[^>]*>07 Sep</, "the feed puts a short date in the gutter");
-// The reported bug: switching to the logbook left the log panel on screen.
 nodes.get("tab-book").handlers.click();
 assert.equal(nodes.get("view-log").hidden, true, "log panel hides when the logbook opens");
 assert.equal(nodes.get("view-book").hidden, false, "logbook panel shows when its tab is picked");
 nodes.get("tab-log").handlers.click();
 assert.equal(nodes.get("view-book").hidden, true, "logbook hides again on the way back");
 
-// Arrow keys move between the two tabs, the standard tablist behaviour.
 nodes.get(".views").handlers.keydown({ key: "ArrowRight", preventDefault() {} });
 assert.equal(nodes.get("view-book").hidden, false, "ArrowRight opens the logbook");
 nodes.get(".views").handlers.keydown({ key: "ArrowLeft", preventDefault() {} });
 assert.equal(nodes.get("view-log").hidden, false, "ArrowLeft returns to the log");
 
-// Skins: the house style is dark by definition and hides the mode toggle, the
-// desktop skins keep a mode and remember both halves of the choice.
 const html_ = document.documentElement;
 assert.equal(html_.dataset.theme, "syam", "first visit lands on the house style");
 assert.equal(html_.dataset.mode, "dark", "the house style is dark whatever the system says");

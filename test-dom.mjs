@@ -1,5 +1,3 @@
-// Stub browser shared by the self-checks, so app.js runs under node.
-
 export const el = () => ({
   handlers: {},
   innerHTML: "",
@@ -20,7 +18,6 @@ export const el = () => ({
   reset() {},
 });
 
-// fetchImpl picks the path under test: working = server, throwing = demo.
 export const install = ({ fetchImpl, storage = new Map() } = {}) => {
   const nodes = new Map();
   globalThis.document = {

@@ -27,7 +27,6 @@
   --line: rgba(124, 58, 237, 0.14);
   --border: rgba(124, 58, 237, 0.24);
   --pill-bg: rgba(124, 58, 237, 0.12);
-  /* easeOutQuint, the Hyprland workspace curve. */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --t: 160ms;
   --scroll-thumb: rgba(124, 58, 237, 0.45);
@@ -54,8 +53,6 @@
   box-sizing: border-box;
 }
 
-/* Panels carry their own display value (grid, flex), which outranks the user
-   agent rule for [hidden], so the attribute has to win explicitly. */
 [hidden] {
   display: none !important;
 }
@@ -66,7 +63,6 @@ html {
   scrollbar-color: var(--scroll-thumb) transparent;
 }
 
-/* Legacy scrollbar styling for browsers without standard scrollbar support. */
 ::-webkit-scrollbar {
   width: 11px;
   height: 11px;
@@ -147,8 +143,6 @@ a:hover {
   margin: 0 auto;
 }
 
-/* ---- demo overview ---- */
-
 .demo-note {
   border: 1px solid var(--border-strong);
   border-left-width: 4px;
@@ -182,13 +176,10 @@ a:hover {
   margin-top: 12px;
 }
 
-/* Two skins make links the same ink as the body text, so underline always. */
 .demo-links a,
 .foot a {
   border-bottom-color: currentColor;
 }
-
-/* ---- masthead ---- */
 
 .masthead {
   display: flex;
@@ -199,8 +190,6 @@ a:hover {
   padding-bottom: 18px;
 }
 
-/* Use one system monospace font: the web font lacks block-art glyphs,
-   so mixing it with fallback glyphs misaligns the spaces. */
 .mark {
   color: var(--purple);
   font-family: monospace;
@@ -250,8 +239,6 @@ a:hover {
   clip-path: inset(50%);
   white-space: nowrap;
 }
-
-/* ---- toolbar ---- */
 
 .toolbar {
   display: flex;
@@ -311,8 +298,6 @@ a:hover {
   color: var(--purple);
 }
 
-/* ---- period filters ---- */
-
 .rail {
   display: flex;
   flex-wrap: wrap;
@@ -356,8 +341,6 @@ a:hover {
 .chip.on .chip-count {
   color: var(--purple);
 }
-
-/* ---- entry modal ---- */
 
 .entry-dialog {
   margin: auto;
@@ -487,7 +470,6 @@ body:has(.entry-dialog[open]) {
   color: var(--fg);
 }
 
-/* A short press, the way a key gives under the finger. */
 .btn:active,
 .chip:active,
 .view-tab:active {
@@ -498,8 +480,6 @@ body:has(.entry-dialog[open]) {
   color: var(--danger);
   font-size: 12px;
 }
-
-/* ---- the feed ---- */
 
 .results-label {
   color: var(--muted);
@@ -644,8 +624,6 @@ body:has(.entry-dialog[open]) {
   border-top: 1px solid var(--line);
 }
 
-/* ---- footer ---- */
-
 .foot {
   display: flex;
   flex-wrap: wrap;
@@ -677,8 +655,6 @@ body:has(.entry-dialog[open]) {
   }
 }
 
-/* ---- view tabs ---- */
-
 .views {
   display: flex;
   gap: 6px;
@@ -703,7 +679,6 @@ body:has(.entry-dialog[open]) {
   color: var(--purple);
 }
 
-/* Keep keyboard focus visible on form controls. */
 .entry-form input:focus-visible,
 .entry-form textarea:focus-visible,
 .search:focus-visible {
@@ -715,8 +690,6 @@ body:has(.entry-dialog[open]) {
   color: var(--fg);
   border-bottom-color: var(--accent);
 }
-
-/* ---- logbook ---- */
 
 .book-bar {
   display: flex;
@@ -758,8 +731,6 @@ body:has(.entry-dialog[open]) {
   display: block;
   white-space: nowrap;
   margin-top: 2px;
-  /* 44px would double the height of every row, so this sits at the 24px
-     minimum target size instead, which a dense table can carry. */
   padding: 6px 0;
   background: transparent;
   border: none;
@@ -813,8 +784,6 @@ body:has(.entry-dialog[open]) {
   color: var(--muted);
 }
 
-/* The period heading spans all three columns, the way it is written by hand
-   across the top of a page in the UiTM book. */
 .book-table .period th {
   background: var(--bg-raise);
   color: var(--fg);
@@ -837,7 +806,6 @@ body:has(.entry-dialog[open]) {
   margin-top: 20px;
 }
 
-/* The footer and the signature rows only exist on paper. */
 .book-table tfoot,
 .book-table .sign {
   display: none;
@@ -854,16 +822,11 @@ body:has(.entry-dialog[open]) {
   width: 32mm;
 }
 
-/* On screen the remarks stay readable but struck through, so it is obvious
-   they exist and are being withheld from the paper copy. */
 body.hide-remarks .remark-text {
   text-decoration: line-through;
   text-decoration-color: var(--faint);
 }
 
-/* On a phone the three columns squeeze to a few words per line, so the table
-   keeps a readable width and scrolls sideways instead. The page itself never
-   scrolls sideways; only this container does. */
 @media screen and (max-width: 760px) {
   .book-scroll {
     overflow-x: auto;
@@ -882,11 +845,6 @@ body.hide-remarks .remark-text {
   }
 }
 
-/* ---- motion ---- */
-
-/* The log sits left of the logbook, so each view slides in from its own side,
-   like a workspace switch. A panel restarts its animation each time it stops
-   being display: none, so no script is needed. */
 @keyframes from-left {
   from {
     opacity: 0;
@@ -937,13 +895,9 @@ body.hide-remarks .remark-text {
   animation: fade-in var(--t) var(--ease);
 }
 
-/* Only the row that was just opened, so the open rows do not replay on every
-   keystroke in the search box, which re-renders the list. */
 .row-detail.opening {
   animation: drop-in var(--t) var(--ease);
 }
-
-/* ---- print: the page that gets handed in ---- */
 
 @page {
   size: A4;
@@ -962,8 +916,6 @@ body.hide-remarks .remark-text {
     animation: none !important;
   }
 
-  /* Everything that is screen furniture is dropped: what is left on paper is
-     the three-column table and nothing else. */
   .demo-note,
   .masthead,
   .views,
@@ -989,9 +941,6 @@ body.hide-remarks .remark-text {
     display: block !important;
   }
 
-  /* Chromium clips anything that touches the right edge of the page box,
-     border or outline, so the table stops 1pt short of it. Separate borders
-     keep each line inside its own cell, where the page edge cannot clip it. */
   .book-table {
     width: calc(100% - 1pt);
     border-collapse: separate;
@@ -1004,9 +953,6 @@ body.hide-remarks .remark-text {
     display: table-header-group;
   }
 
-  /* Each cell draws only its top and right rule, so no line is ever drawn
-     twice. The left rule comes from the first cell, and the repeating footer
-     below draws the bottom rule on every page. */
   .book-table th,
   .book-table td {
     border: 0 solid #000;
@@ -1020,8 +966,6 @@ body.hide-remarks .remark-text {
     border-left-width: 0.6pt;
   }
 
-  /* A page break between two rows would otherwise leave the last row on the
-     page open at the bottom. Chromium repeats a footer group on every page. */
   .book-table tfoot {
     display: table-footer-group;
   }
@@ -1067,9 +1011,6 @@ body.hide-remarks .remark-text {
     display: none;
   }
 
-  /* Unchecked toggle: the column prints empty, sized for a handwritten note.
-     visibility keeps the cell height and the border, and keeps the text out of
-     the PDF text layer, which colour: transparent would not. */
   body.hide-remarks .remark-text {
     visibility: hidden;
     text-decoration: none;
