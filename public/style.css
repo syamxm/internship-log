@@ -481,6 +481,66 @@ body:has(.entry-dialog[open]) {
   font-size: 12px;
 }
 
+.gaps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.gaps[hidden] {
+  display: none;
+}
+
+.gaps button,
+.toast button {
+  min-height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--purple);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.gaps button:hover,
+.toast button:hover {
+  color: var(--fg);
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: calc(100vw - 32px);
+  padding: 8px 16px;
+  background: var(--bg-raise);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--fg);
+  font-size: 12.5px;
+}
+
+.toast[hidden] {
+  display: none;
+}
+
+.toast span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .results-label {
   color: var(--muted);
   font-size: 12px;
@@ -503,7 +563,7 @@ body:has(.entry-dialog[open]) {
 
 .row-main {
   display: grid;
-  grid-template-columns: 74px minmax(0, 1fr) auto;
+  grid-template-columns: 88px minmax(0, 1fr) auto;
   align-items: baseline;
   gap: 16px;
   width: 100%;
@@ -642,7 +702,7 @@ body:has(.entry-dialog[open]) {
   }
 
   .row-main {
-    grid-template-columns: 60px minmax(0, 1fr);
+    grid-template-columns: 80px minmax(0, 1fr);
     gap: 6px 12px;
   }
 
@@ -922,6 +982,7 @@ body.hide-remarks .remark-text {
   .layout,
   .book-bar,
   .book-note,
+  .toast,
   .foot {
     display: none !important;
   }

@@ -4,6 +4,22 @@ const $ = (id) => document.getElementById(id);
 let entries = [];
 let activeCategory = null;
 let expanded = new Set();
+let deleted = null;
+const DRAFT_KEY = "entry-draft";
+const DRAFT_FIELDS = ["f-category", "f-title", "f-body", "f-tags", "f-remarks"];
+
+const isoDay = (d) => new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+
+export const missingDays = (entries, today) => {
+  const logged = new Set(entries.map((e) => e.date));
+  const monday = today.getDate() - ((today.getDay() + 6) % 7);
+  const week = [];
+  for (let i = 0; i < 5; i++) {
+    const day = new Date(today.getFullYear(), today.getMonth(), monday + i);
+    if (day <= today) week.push(isoDay(day));
+  }
+  return week.some((d) => logged.has(d)) ? [] : week;
+};
 
 const serverApi = async (method, path = "", body) => {
   const res = await fetch(`/api/entries${path}`, {
@@ -149,12 +165,26 @@ function render() {
       ? `${shown.length} entr${shown.length === 1 ? "y" : "ies"} in ${activeCategory}`
       : "";
 
+  const gaps = entries.length ? missingDays(entries, new Date()) : [];
+  $("gaps").hidden = gaps.length === 0;
+  $("gaps").innerHTML = `not logged this week:${gaps
+    .map((d) => `<button type="button" data-gap="${d}">${weekday(d)}</button>`)
+    .join("")}`;
+
   $("empty").hidden = shown.length > 0;
   $("items").innerHTML = shown.map(row).join("");
   renderBook();
 }
 
 const uitmDate = (iso) => iso.split("-").reverse().join("/");
+
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const weekday = (iso) => {
+  const [y, m, d] = iso.split("-");
+  return `${DAYS[new Date(y, m - 1, d).getDay()]} ${d} ${MONTHS[m - 1]}`;
+};
 
 function renderBook() {
   const rows = [...entries].sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
@@ -166,6 +196,11 @@ function renderBook() {
     ? `${rows.length} entr${rows.length === 1 ? "y" : "ies"} across ${periods.size} period${
         periods.size === 1 ? "" : "s"
       }, ${uitmDate(rows[0].date)} to ${uitmDate(rows[rows.length - 1].date)}`
+    : "";
+
+  const blank = rows.filter((e) => !e.remarks?.trim()).length;
+  $("book-remarks").textContent = blank
+    ? `${blank} day${blank === 1 ? " has" : "s have"} no typed remarks. They print as empty boxes to sign by hand.`
     : "";
 
   const sign = `<tr class="sign"><td colspan="3">Supervisor's signature<span class="sign-line"></span>Date<span class="sign-line short"></span></td></tr>`;
@@ -222,13 +257,6 @@ $("print-remarks").addEventListener("change", (ev) => {
 
 $("print").addEventListener("click", () => window.print());
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-const dayLabel = (iso) => {
-  const [, m, d] = iso.split("-");
-  return `${d} ${MONTHS[Number(m) - 1] ?? m}`;
-};
-
 const row = (e) => {
   const open = expanded.has(e.id);
   const tags = e.tags
@@ -237,7 +265,7 @@ const row = (e) => {
     .filter(Boolean);
   return `<li class="row${open ? " open" : ""}">
     <button type="button" class="row-main" data-toggle="${e.id}" aria-expanded="${open}">
-      <time class="row-date" datetime="${esc(e.date)}">${esc(dayLabel(e.date))}</time>
+      <time class="row-date" datetime="${esc(e.date)}">${esc(weekday(e.date))}</time>
       <span class="row-title">${esc(e.title)}</span>
       <span class="row-period">${esc(e.category)}</span>
     </button>
@@ -289,10 +317,18 @@ const editEntry = (id) => {
   openForm();
 };
 
+const newEntry = (date) => {
+  resetForm();
+  if (date) $("f-date").value = date;
+  const draft = JSON.parse(localStorage.getItem(DRAFT_KEY)) ?? { "f-category": entries[0]?.category ?? "" };
+  for (const id of DRAFT_FIELDS) $(id).value = draft[id] ?? "";
+  openForm();
+};
+
 const resetForm = () => {
   $("form").reset();
   $("f-id").value = "";
-  $("f-date").value = new Date().toISOString().slice(0, 10);
+  $("f-date").value = isoDay(new Date());
   $("submit").textContent = "add entry";
   $("form-title").textContent = "New entry";
   $("error").textContent = "";
@@ -311,6 +347,7 @@ $("form").addEventListener("submit", async (ev) => {
   };
   try {
     await api(id ? "PUT" : "POST", id ? `/${id}` : "", payload);
+    if (!id) localStorage.removeItem(DRAFT_KEY);
     closeForm();
     await load();
   } catch (err) {
@@ -320,9 +357,35 @@ $("form").addEventListener("submit", async (ev) => {
 
 $("cancel").addEventListener("click", closeForm);
 
-$("new").addEventListener("click", () => {
-  resetForm();
-  openForm();
+$("form").addEventListener("input", () => {
+  if ($("f-id").value) return;
+  const draft = Object.fromEntries(DRAFT_FIELDS.map((id) => [id, $(id).value]));
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+});
+
+$("form").addEventListener("keydown", (ev) => {
+  if (ev.key === "Enter" && (ev.ctrlKey || ev.metaKey)) $("form").requestSubmit();
+});
+
+$("new").addEventListener("click", () => newEntry());
+
+$("gaps").addEventListener("click", (ev) => {
+  const btn = ev.target.closest("[data-gap]");
+  if (btn) newEntry(btn.dataset.gap);
+});
+
+document.addEventListener("keydown", (ev) => {
+  if (ev.ctrlKey || ev.metaKey || ev.altKey || $("entry-dialog").open) return;
+  if (ev.target.matches("input, textarea, select")) return;
+  if (ev.key === "n") {
+    ev.preventDefault();
+    newEntry();
+  }
+  if (ev.key === "/") {
+    ev.preventDefault();
+    showView(false, false);
+    $("search").focus();
+  }
 });
 
 $("entry-dialog").addEventListener("cancel", (ev) => {
@@ -353,14 +416,36 @@ $("items").addEventListener("click", async (ev) => {
     return document.querySelector(`[data-toggle="${id}"] + .row-detail`)?.classList.add("opening");
   }
   if (edit) editEntry(Number(edit));
-  if (del && confirm("delete this entry?")) {
+  if (del) {
     try {
+      const entry = entries.find((e) => e.id === Number(del));
       await api("DELETE", `/${del}`);
       expanded.delete(Number(del));
+      showUndo(entry);
       await load();
     } catch (err) {
       $("results").textContent = `could not delete entry: ${err.message}`;
     }
+  }
+});
+
+const showUndo = (entry) => {
+  deleted = entry;
+  $("toast-text").textContent = `Deleted "${entry.title}".`;
+  $("toast").hidden = false;
+  $("toast").animate([{ opacity: 1 }, { opacity: 1, offset: 0.9 }, { opacity: 0, visibility: "hidden" }], {
+    duration: 8000,
+    fill: "forwards",
+  });
+};
+
+$("toast-undo").addEventListener("click", async () => {
+  $("toast").hidden = true;
+  try {
+    await api("POST", "", deleted);
+    await load();
+  } catch (err) {
+    $("results").textContent = `could not restore entry: ${err.message}`;
   }
 });
 
