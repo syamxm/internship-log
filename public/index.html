@@ -77,11 +77,13 @@
             <div class="find">
               <label for="search" class="sr-only">search entries</label>
               <span class="prompt" aria-hidden="true">&gt;</span>
-              <input class="search" id="search" placeholder="search entries" />
+              <input class="search" id="search" placeholder="search entries ( / )" aria-keyshortcuts="/" />
               <button class="clear" type="button" id="clear" hidden>clear</button>
             </div>
-            <button class="btn" type="button" id="new" aria-haspopup="dialog">new entry</button>
+            <button class="btn" type="button" id="new" aria-haspopup="dialog" aria-keyshortcuts="n" title="New entry (n)">new entry</button>
           </div>
+
+          <p class="gaps" id="gaps" hidden></p>
 
           <nav class="rail" id="rail" aria-label="filter by period"></nav>
 
@@ -118,7 +120,7 @@
               <input id="f-tags" placeholder="git, docker, meeting" />
             </div>
             <div class="form-actions">
-              <button class="btn" type="submit" id="submit">add entry</button>
+              <button class="btn" type="submit" id="submit" aria-keyshortcuts="Control+Enter" title="Save (Ctrl+Enter)">add entry</button>
               <span class="form-error" id="error" role="alert"></span>
             </div>
           </form>
@@ -140,6 +142,7 @@
           <p class="book-note">
             Choose "Save as PDF" as the destination. A4, oldest entry first.
             <span class="book-summary" id="book-summary"></span>
+            <span class="book-summary" id="book-remarks"></span>
           </p>
 
           <div class="book-scroll">
@@ -160,6 +163,11 @@
             Nothing to print yet. Add an entry in the log view first.
           </p>
         </section>
+
+        <div class="toast" id="toast" role="status" hidden>
+          <span id="toast-text"></span>
+          <button type="button" id="toast-undo">undo</button>
+        </div>
 
         <footer class="foot">
           <span id="foot-where">chronos, localhost only</span>

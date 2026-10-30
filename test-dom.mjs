@@ -10,7 +10,9 @@ export const el = () => ({
   dataset: {},
   classList: { toggle() {}, add() {}, remove() {} },
   setAttribute() {},
-  focus() {},
+  focus() { this.focused = true; },
+  requestSubmit() { this.handlers.submit({ preventDefault() {} }); },
+  animate() {},
   addEventListener(type, fn) {
     this.handlers[type] = fn;
   },
@@ -25,14 +27,18 @@ export const install = ({ fetchImpl, storage = new Map() } = {}) => {
     querySelector: (sel) => nodes.get(sel) ?? nodes.set(sel, el()).get(sel),
     documentElement: el(),
     body: el(),
+    handlers: {},
+    addEventListener(type, fn) {
+      this.handlers[type] = fn;
+    },
   };
   globalThis.localStorage = {
     getItem: (k) => storage.get(k) ?? null,
     setItem: (k, v) => storage.set(k, String(v)),
+    removeItem: (k) => storage.delete(k),
   };
   globalThis.matchMedia = () => ({ matches: false });
   globalThis.getComputedStyle = () => ({ getPropertyValue: () => "#0d0b14" });
   globalThis.fetch = fetchImpl;
-  globalThis.confirm = () => true;
   return { nodes, storage };
 };

@@ -58,12 +58,41 @@ nodes.get("new").handlers.click();
 nodes.get("cancel").handlers.click();
 assert.equal(nodes.get("entry-dialog").open, false, "the close button closes the modal");
 
+nodes.get("new").handlers.click();
+assert.equal(nodes.get("f-category").value, "1st Week Intern", "a new entry starts in the latest period");
+nodes.get("f-title").value = "Half-written thought";
+nodes.get("form").handlers.input();
+nodes.get("entry-dialog").handlers.cancel({ preventDefault() {} });
+await nodes.get("items").handlers.click({
+  target: { closest: () => ({ dataset: { edit: "1" } }) },
+});
+nodes.get("form").handlers.input();
+nodes.get("cancel").handlers.click();
+nodes.get("new").handlers.click();
+assert.equal(nodes.get("f-title").value, "Half-written thought", "a closed new entry comes back as a draft");
+await submit({ "f-date": "2026-07-09" });
+assert.equal(storage.get("entry-draft"), undefined, "saving the entry drops the draft");
+nodes.get("new").handlers.click();
+assert.equal(nodes.get("f-title").value, "", "the next new entry starts empty");
+nodes.get("cancel").handlers.click();
+await nodes.get("items").handlers.click({
+  target: { closest: () => ({ dataset: { del: "4" } }) },
+});
+
 await nodes.get("items").handlers.click({
   target: { closest: () => ({ dataset: { del: "3" } }) },
 });
 await new Promise((r) => setTimeout(r, 0));
 assert.equal(JSON.parse(storage.get("internship-log-demo")).length, 2, "delete removes the row from storage");
 assert.ok(!nodes.get("items").innerHTML.includes("Wrote the deploy checklist"), "and from the page");
+assert.equal(nodes.get("toast").hidden, false, "delete offers an undo");
+assert.match(nodes.get("toast-text").textContent, /Wrote the deploy checklist/, "the undo names what was deleted");
+
+await nodes.get("toast-undo").handlers.click();
+await new Promise((r) => setTimeout(r, 0));
+assert.equal(nodes.get("toast").hidden, true, "undo hides the toast");
+assert.match(nodes.get("items").innerHTML, /Wrote the deploy checklist/, "undo brings the entry back");
+assert.equal(JSON.parse(storage.get("internship-log-demo")).length, 3, "undo writes the entry back to storage");
 
 localStorage.setItem = () => { throw new Error("storage blocked"); };
 nodes.get("new").handlers.click();
@@ -71,7 +100,7 @@ await submit({ "f-id": "", "f-date": "2026-07-09", "f-title": "Unsaved draft" })
 assert.equal(nodes.get("entry-dialog").open, true, "failed storage keeps the form open");
 assert.equal(nodes.get("f-title").value, "Unsaved draft", "failed storage preserves the draft");
 assert.match(nodes.get("error").textContent, /Could not save in this browser/);
-assert.equal(JSON.parse(storage.get("internship-log-demo")).length, 2, "failed writes leave stored entries intact");
+assert.equal(JSON.parse(storage.get("internship-log-demo")).length, 3, "failed writes leave stored entries intact");
 await nodes.get("items").handlers.click({
   target: { closest: () => ({ dataset: { del: "1" } }) },
 });
