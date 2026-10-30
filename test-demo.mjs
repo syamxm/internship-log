@@ -1,10 +1,6 @@
-// Self-check for the demo build: no API, so app.js falls back to localStorage,
-// says so on screen, and still validates what it writes.
-//   node test-demo.mjs
 import assert from "node:assert/strict";
 import { install } from "./test-dom.mjs";
 
-// A static host answers /api/entries with a 404 page: res.json() throws.
 const { nodes, storage } = install({
   fetchImpl: async () => ({
     ok: false,
@@ -34,7 +30,6 @@ const submit = async (fields) => {
   await new Promise((r) => setTimeout(r, 0));
 };
 
-// A bad date has to fail here exactly as it fails on the server.
 nodes.get("new").handlers.click();
 assert.equal(nodes.get("entry-dialog").open, true, "new entry opens a modal");
 await submit({ "f-id": "", "f-date": "14-09-2026", "f-title": "Wrong date format", "f-category": "", "f-body": "", "f-tags": "", "f-remarks": "" });
@@ -63,7 +58,6 @@ nodes.get("new").handlers.click();
 nodes.get("cancel").handlers.click();
 assert.equal(nodes.get("entry-dialog").open, false, "the close button closes the modal");
 
-// Deleting goes through the same path, and what is left is what reloads.
 await nodes.get("items").handlers.click({
   target: { closest: () => ({ dataset: { del: "3" } }) },
 });
@@ -71,7 +65,6 @@ await new Promise((r) => setTimeout(r, 0));
 assert.equal(JSON.parse(storage.get("internship-log-demo")).length, 2, "delete removes the row from storage");
 assert.ok(!nodes.get("items").innerHTML.includes("Wrote the deploy checklist"), "and from the page");
 
-// Storage failures must keep the draft and report failure, never claim success.
 localStorage.setItem = () => { throw new Error("storage blocked"); };
 nodes.get("new").handlers.click();
 await submit({ "f-id": "", "f-date": "2026-07-09", "f-title": "Unsaved draft" });

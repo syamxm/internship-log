@@ -2,11 +2,13 @@ import { createServer } from "node:http";
 import { DatabaseSync } from "node:sqlite";
 import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
+import { clean } from "./public/clean.js";
 
 const PORT = process.env.PORT || 4173;
+const HOST = process.env.HOST || "127.0.0.1";
 const ROOT = new URL(".", import.meta.url).pathname;
 
-const db = new DatabaseSync(join(ROOT, "log.db"));
+const db = new DatabaseSync(process.env.DB_PATH || join(ROOT, "log.db"));
 db.exec(`
   CREATE TABLE IF NOT EXISTS entries (
     id INTEGER PRIMARY KEY,
@@ -15,22 +17,17 @@ db.exec(`
     category TEXT NOT NULL DEFAULT 'work',
     body TEXT NOT NULL DEFAULT '',
     tags TEXT NOT NULL DEFAULT '',
+    remarks TEXT NOT NULL DEFAULT '',
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   )
 `);
 
-// SQLite has no ALTER TABLE ... ADD COLUMN IF NOT EXISTS, so check pragma first.
-const hasRemarks = db
-  .prepare("SELECT * FROM pragma_table_info('entries') WHERE name = 'remarks'")
-  .get();
-if (!hasRemarks) db.exec("ALTER TABLE entries ADD COLUMN remarks TEXT NOT NULL DEFAULT ''");
-
 const list = db.prepare("SELECT * FROM entries ORDER BY date DESC, id DESC");
 const insert = db.prepare(
-  "INSERT INTO entries (date, title, category, body, tags, remarks) VALUES (?, ?, ?, ?, ?, ?)"
+  "INSERT INTO entries (date, title, category, body, tags, remarks) VALUES (:date, :title, :category, :body, :tags, :remarks)"
 );
 const update = db.prepare(
-  "UPDATE entries SET date = ?, title = ?, category = ?, body = ?, tags = ?, remarks = ? WHERE id = ?"
+  "UPDATE entries SET date = :date, title = :title, category = :category, body = :body, tags = :tags, remarks = :remarks WHERE id = :id"
 );
 const remove = db.prepare("DELETE FROM entries WHERE id = ?");
 
@@ -63,22 +60,6 @@ const readBody = (req) =>
     });
   });
 
-// date required as YYYY-MM-DD, title non-empty; everything else defaults to "".
-const clean = (b) => {
-  const date = String(b.date ?? "").trim();
-  const title = String(b.title ?? "").trim();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("date must be YYYY-MM-DD");
-  if (!title) throw new Error("title required");
-  return [
-    date,
-    title.slice(0, 200),
-    String(b.category ?? "work").trim().slice(0, 40) || "work",
-    String(b.body ?? "").slice(0, 20000),
-    String(b.tags ?? "").trim().slice(0, 200),
-    String(b.remarks ?? "").slice(0, 2000),
-  ];
-};
-
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
   const path = url.pathname;
@@ -88,11 +69,11 @@ const server = createServer(async (req, res) => {
     try {
       if (req.method === "GET") return json(res, 200, list.all());
       if (req.method === "POST") {
-        const info = insert.run(...clean(await readBody(req)));
+        const info = insert.run(clean(await readBody(req)));
         return json(res, 201, { id: Number(info.lastInsertRowid) });
       }
       if (req.method === "PUT" && id) {
-        update.run(...clean(await readBody(req)), id);
+        update.run({ ...clean(await readBody(req)), id });
         return json(res, 200, { id });
       }
       if (req.method === "DELETE" && id) {
@@ -105,7 +86,6 @@ const server = createServer(async (req, res) => {
     }
   }
 
-  // static: normalize kills ../ traversal, then everything is served from public/
   const rel = normalize(path === "/" ? "/index.html" : path).replace(/^(\.\.[/\\])+/, "");
   try {
     const file = await readFile(join(ROOT, "public", rel));
@@ -117,6 +97,6 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, "127.0.0.1", () =>
-  console.log(`internship-log → http://127.0.0.1:${PORT}`)
+server.listen(PORT, HOST, () =>
+  console.log(`internship-log → http://${HOST}:${PORT}`)
 );

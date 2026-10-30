@@ -1,6 +1,8 @@
+import { clean } from "./clean.js";
+
 const $ = (id) => document.getElementById(id);
 let entries = [];
-let activeCategory = null; // null = all
+let activeCategory = null;
 let expanded = new Set();
 
 const serverApi = async (method, path = "", body) => {
@@ -14,8 +16,6 @@ const serverApi = async (method, path = "", body) => {
   return data;
 };
 
-// ---- demo store ----
-// No server on GitHub Pages, so the same calls run against localStorage.
 const DEMO_KEY = "internship-log-demo";
 let demo = false;
 
@@ -45,7 +45,6 @@ const demoAll = () => {
     const raw = localStorage.getItem(DEMO_KEY);
     return raw ? JSON.parse(raw) : DEMO_SEED;
   } catch {
-    // Private windows and blocked site data throw instead of returning null.
     return DEMO_SEED;
   }
 };
@@ -58,22 +57,6 @@ const demoSave = (rows) => {
   }
 };
 
-// Mirrors the server's validation so both builds reject the same input.
-const demoClean = (b) => {
-  const date = String(b.date ?? "").trim();
-  const title = String(b.title ?? "").trim();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("date must be YYYY-MM-DD");
-  if (!title) throw new Error("title required");
-  return {
-    date,
-    title: title.slice(0, 200),
-    category: String(b.category ?? "work").trim().slice(0, 40) || "work",
-    body: String(b.body ?? "").slice(0, 20000),
-    tags: String(b.tags ?? "").trim().slice(0, 200),
-    remarks: String(b.remarks ?? "").slice(0, 2000),
-  };
-};
-
 const demoApi = (method, path = "", body) => {
   const id = Number(path.split("/")[1]);
   const rows = demoAll();
@@ -83,11 +66,11 @@ const demoApi = (method, path = "", body) => {
   }
   if (method === "POST") {
     const next = rows.reduce((max, r) => Math.max(max, r.id), 0) + 1;
-    demoSave([...rows, { id: next, ...demoClean(body) }]);
+    demoSave([...rows, { id: next, ...clean(body) }]);
     return { id: next };
   }
   if (method === "PUT" && id) {
-    demoSave(rows.map((r) => (r.id === id ? { id, ...demoClean(body) } : r)));
+    demoSave(rows.map((r) => (r.id === id ? { id, ...clean(body) } : r)));
     return { id };
   }
   if (method === "DELETE" && id) {
@@ -110,8 +93,6 @@ const api = async (method, path = "", body) => {
   try {
     return await serverApi(method, path, body);
   } catch (err) {
-    // A static host 404s the API and file:// refuses it: both land here as a
-    // parse or network error, never as the server's own validation error.
     if (!(err instanceof TypeError || err instanceof SyntaxError)) throw err;
     enterDemo();
     return demoApi(method, path, body);
@@ -173,10 +154,8 @@ function render() {
   renderBook();
 }
 
-// UiTM writes dates by hand as DD/MM/YYYY; storage stays YYYY-MM-DD.
 const uitmDate = (iso) => iso.split("-").reverse().join("/");
 
-// Printing includes all entries, regardless of the current search or filter.
 function renderBook() {
   const rows = [...entries].sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
   $("book-empty").hidden = rows.length > 0;
@@ -189,7 +168,6 @@ function renderBook() {
       }, ${uitmDate(rows[0].date)} to ${uitmDate(rows[rows.length - 1].date)}`
     : "";
 
-  // The supervisor signs off each period by hand, under its last day.
   const sign = `<tr class="sign"><td colspan="3">Supervisor's signature<span class="sign-line"></span>Date<span class="sign-line short"></span></td></tr>`;
   let period = null;
   $("book-body").innerHTML = rows
@@ -213,8 +191,6 @@ function renderBook() {
 const showView = (book, focusTab = true) => {
   $("view-book").hidden = !book;
   $("view-log").hidden = book;
-  // Switching while scrolled deep into the log would otherwise land the owner
-  // in the middle of the table with no idea the view changed.
   document.querySelector(".views").scrollIntoView({ block: "start" });
   for (const [tab, on] of [["tab-book", book], ["tab-log", !book]]) {
     $(tab).classList.toggle("on", on);
@@ -240,7 +216,6 @@ $("book-body").addEventListener("click", (ev) => {
   editEntry(Number(btn.dataset.bookEdit));
 });
 
-// Unchecked means the remarks column prints empty, leaving room to sign by hand.
 $("print-remarks").addEventListener("change", (ev) => {
   document.body.classList.toggle("hide-remarks", !ev.target.checked);
 });
@@ -392,8 +367,6 @@ $("items").addEventListener("click", async (ev) => {
 resetForm();
 load();
 
-// ---- skins ----
-// index.html already set the attributes; this keeps the controls in step.
 const root = document.documentElement;
 
 function applySkin(theme, mode) {
@@ -407,7 +380,6 @@ function applySkin(theme, mode) {
   $("skin-mode").hidden = theme === "syam";
   $("skin-mode").textContent = dark;
   $("skin-mode").setAttribute("aria-pressed", String(dark === "dark"));
-  // --bg, not the computed background: two skins paint a gradient only.
   document
     .querySelector('meta[name="theme-color"]')
     .setAttribute("content", getComputedStyle(root).getPropertyValue("--bg").trim());

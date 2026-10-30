@@ -1,15 +1,5 @@
-/* ---- skins ----
-   Token swaps on [data-theme][data-mode], plus the few rules a skin cannot
-   express as a colour: bevels, fonts, radii. The default skin is :root in
-   style.css, so it is not repeated here. app.js always writes data-mode. */
-
-/* @media screen on purpose: the printed logbook is a university document and
-   must come out identical under every skin. It also keeps color-scheme off
-   the print canvas, which otherwise blackens the page margins in dark mode. */
-
 @media screen {
 
-  /* Native controls follow the skin's mode, not the OS. */
   [data-mode="dark"] {
     color-scheme: dark;
   }
@@ -17,8 +7,6 @@
   [data-mode="light"] {
     color-scheme: light;
   }
-
-  /* ---- Nothing ---- */
 
   [data-theme="nothing"] {
     --font-ui: "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
@@ -68,7 +56,6 @@
     --dot: rgba(255, 255, 255, 0.13);
     --scroll-thumb: #ffffff;
     --scroll-thumb-hover: #ff3b41;
-    /* Black clears AA on this red at 5.95:1, white only reaches 3.53:1. */
     --on-accent: #000000;
   }
 
@@ -93,7 +80,6 @@
     font-size: 11px;
   }
 
-  /* Outlines, not fills. */
   [data-theme="nothing"] .btn,
   [data-theme="nothing"] .chip,
   [data-theme="nothing"] .icon-btn {
@@ -131,8 +117,6 @@
   [data-theme="nothing"] .mark {
     color: var(--accent);
   }
-
-  /* ---- E-Ink Paper ---- */
 
   [data-theme="eink"] {
     --font-ui: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
@@ -183,7 +167,6 @@
     --page-bg: var(--bg);
   }
 
-  /* Paper has no elevation and no animation. */
   [data-theme="eink"] *,
   [data-theme="eink"] ::backdrop {
     animation: none !important;
@@ -195,7 +178,6 @@
     line-height: 1.7;
   }
 
-  /* Numbers stay monospaced so columns line up. */
   [data-theme="eink"] .row-date,
   [data-theme="eink"] .masthead-meta,
   [data-theme="eink"] .chip-count,
@@ -203,7 +185,6 @@
     font-family: var(--font);
   }
 
-  /* Small caps, the way a printed form labels its columns. */
   [data-theme="eink"] .view-tab,
   [data-theme="eink"] .entry-form label,
   [data-theme="eink"] .book-table thead th,
@@ -220,7 +201,6 @@
     font-weight: 600;
   }
 
-  /* The selected filter is the one thing printed solid. */
   [data-theme="eink"] .chip.on {
     background: var(--fg);
     border-color: var(--fg);
@@ -240,15 +220,11 @@
     font-weight: 700;
   }
 
-  /* ============ Windows 95 / 98 ============
-     Raised and sunken bevels, square corners, one 2px light/dark pair. */
-
   [data-theme="win9x"] {
     --font-ui: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Verdana, Geneva, sans-serif;
     --r: 0;
     --r-sm: 0;
     --mark-glow: none;
-    /* Swapped per mode so the 3D reads on both canvases. */
     --bevel-light: #ffffff;
     --bevel-soft: #dfdfdf;
     --bevel-shade: #808080;
@@ -276,7 +252,6 @@
     --page-bg: var(--bg);
   }
 
-  /* The classic High Contrast Black scheme, not a modern dark mode. */
   [data-theme="win9x"][data-mode="dark"] {
     --bg: #000000;
     --bg-raise: #1f1f1f;
@@ -302,7 +277,6 @@
     --bevel-dark: #000000;
   }
 
-  /* Teal desktop, raised window on top. */
   [data-theme="win9x"] .shell {
     background: var(--bg-raise);
     border: 2px solid;
@@ -311,7 +285,6 @@
     padding: 14px 16px 18px;
   }
 
-  /* Raised. */
   [data-theme="win9x"] .btn,
   [data-theme="win9x"] .icon-btn,
   [data-theme="win9x"] .chip,
@@ -332,7 +305,6 @@
     color: var(--fg);
   }
 
-  /* Pressed: bevel inverts, label shifts a pixel down and right. */
   [data-theme="win9x"] .btn:active,
   [data-theme="win9x"] .icon-btn:active,
   [data-theme="win9x"] .chip:active,
@@ -355,7 +327,6 @@
     font-weight: 700;
   }
 
-  /* Sunken: anything you type into. */
   [data-theme="win9x"] .search,
   [data-theme="win9x"] .entry-form input,
   [data-theme="win9x"] .entry-form textarea {
@@ -378,7 +349,6 @@
     border-color: var(--bevel-light) var(--bevel-dark) var(--bevel-dark) var(--bevel-light);
   }
 
-  /* The form heading is a title bar. */
   [data-theme="win9x"] .form-head {
     background: var(--sel);
     margin: -16px -16px 4px;
@@ -404,13 +374,10 @@
     color: var(--fg);
   }
 
-  /* Dotted keyboard focus matches the classic desktop controls. */
   [data-theme="win9x"] :focus-visible {
     outline: 1px dotted var(--fg);
     outline-offset: -4px;
   }
-
-  /* ============ the skin picker itself ============ */
 
   .skin {
     display: flex;
@@ -439,6 +406,5 @@
   .skin-select:hover {
     border-color: var(--border-strong);
   }
-
 
 }

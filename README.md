@@ -175,18 +175,18 @@ Bugs, opinions and requests go to [syamxm.com/#contact](https://syamxm.com/#cont
 
 ## Keeping it running
 
-Optional. A [PM2](https://pm2.keymetrics.io) config is included so the server
-survives reboots and logouts:
+Optional. `compose.yaml` runs the server in a small Alpine container that
+restarts on its own after a reboot:
 
 ```sh
-npm install -g pm2
-pm2 start ecosystem.config.cjs
-pm2 save
-pm2 startup      # macOS / Linux, prints a command to run once
+mkdir -p data && cp log.db data/   # first time only, if you already have entries
+docker compose up -d --build
 ```
 
-On Windows, use [pm2-windows-startup](https://www.npmjs.com/package/pm2-windows-startup)
-instead of `pm2 startup`, or run the server from a Task Scheduler entry.
+The container keeps its database in `data/log.db`, not `./log.db`. Use one
+or the other, not both, or the two files will drift apart. The container runs
+as a non-root user on a read-only filesystem with every capability dropped,
+and the port is published on `127.0.0.1` only.
 
 ## How it works
 
@@ -194,10 +194,11 @@ instead of `pm2 startup`, or run the server from a Task Scheduler entry.
 | --- | --- |
 | `server.js` | HTTP server, SQLite schema, JSON API, static file serving |
 | `public/index.html` | Page structure |
+| `public/clean.js` | Input validation, shared by the server and the demo store |
 | `public/app.js` | Rendering, search, category filter, form handling, skins, demo store |
 | `public/style.css` | Layout and the default skin's tokens |
 | `public/themes.css` | The other three skins, screen only |
-| `ecosystem.config.cjs` | PM2 process definition |
+| `Dockerfile`, `compose.yaml` | Container build and hardened run settings |
 
 The API is four routes under `/api/entries`:
 
@@ -226,8 +227,7 @@ still validates input the way the server does.
 
 An entry is a `date` (`YYYY-MM-DD`, required), a `title` (required), plus
 optional `category`, `body`, comma-separated `tags`, and `remarks`. Dates are
-stored `YYYY-MM-DD` and rendered `DD/MM/YYYY` in the logbook only. The
-`remarks` column is added by a guarded `ALTER TABLE` on startup.
+stored `YYYY-MM-DD` and rendered `DD/MM/YYYY` in the logbook only.
 
 ## A note on security
 
